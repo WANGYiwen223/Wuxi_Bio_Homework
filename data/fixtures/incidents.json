@@ -1,0 +1,15 @@
+[
+  {
+    "incident_id": "INC-OLD-001",
+    "service_ids": [
+      "vpn"
+    ],
+    "status": "resolved",
+    "affected_locations": [
+      "Chicago"
+    ],
+    "started_at": "2026-09-15T08:00:00+08:00",
+    "resolved_at": "2026-09-15T09:00:00+08:00",
+    "summary": "Previous regional gateway failure; resolved before the current demo."
+  }
+]

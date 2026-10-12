@@ -1,0 +1,74 @@
+[
+  {
+    "account_id": "OKTA-001",
+    "employee_id": "EMP-001",
+    "service_id": "okta",
+    "status": "active",
+    "failed_attempts": 0,
+    "mfa_enrolled": true,
+    "observed_at": "2026-10-12T09:55:00+08:00"
+  },
+  {
+    "account_id": "OKTA-002",
+    "employee_id": "EMP-002",
+    "service_id": "okta",
+    "status": "active",
+    "failed_attempts": 0,
+    "mfa_enrolled": true,
+    "observed_at": "2026-10-12T09:55:00+08:00"
+  },
+  {
+    "account_id": "OKTA-003",
+    "employee_id": "EMP-003",
+    "service_id": "okta",
+    "status": "locked",
+    "failed_attempts": 6,
+    "mfa_enrolled": true,
+    "observed_at": "2026-10-12T09:55:00+08:00"
+  },
+  {
+    "account_id": "OKTA-004",
+    "employee_id": "EMP-004",
+    "service_id": "okta",
+    "status": "active",
+    "failed_attempts": 0,
+    "mfa_enrolled": true,
+    "observed_at": "2026-10-12T09:55:00+08:00"
+  },
+  {
+    "account_id": "OKTA-005",
+    "employee_id": "EMP-005",
+    "service_id": "okta",
+    "status": "active",
+    "failed_attempts": 0,
+    "mfa_enrolled": true,
+    "observed_at": "2026-10-12T09:55:00+08:00"
+  },
+  {
+    "account_id": "OKTA-006",
+    "employee_id": "EMP-006",
+    "service_id": "okta",
+    "status": "active",
+    "failed_attempts": 0,
+    "mfa_enrolled": true,
+    "observed_at": "2026-10-12T09:55:00+08:00"
+  },
+  {
+    "account_id": "OKTA-007",
+    "employee_id": "EMP-007",
+    "service_id": "okta",
+    "status": "active",
+    "failed_attempts": 0,
+    "mfa_enrolled": true,
+    "observed_at": "2026-10-12T09:55:00+08:00"
+  },
+  {
+    "account_id": "OKTA-008",
+    "employee_id": "EMP-008",
+    "service_id": "okta",
+    "status": "active",
+    "failed_attempts": 0,
+    "mfa_enrolled": true,
+    "observed_at": "2026-10-12T09:55:00+08:00"
+  }
+]

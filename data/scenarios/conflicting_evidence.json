@@ -1,0 +1,35 @@
+{
+  "scenario_id": "conflicting_evidence",
+  "version": "1.0",
+  "clock": "2026-10-12T10:00:00+08:00",
+  "employee_id": "EMP-004",
+  "overrides": {
+    "services": [
+      {
+        "service_id": "vpn",
+        "health": "healthy",
+        "observed_at": "2026-10-11T09:00:00+08:00",
+        "incident_ids": [
+          "INC-DEMO-003"
+        ]
+      }
+    ],
+    "incidents": [
+      {
+        "incident_id": "INC-DEMO-003",
+        "service_ids": [
+          "vpn"
+        ],
+        "status": "investigating",
+        "affected_locations": [
+          "Chicago",
+          "Remote-US"
+        ],
+        "started_at": "2026-10-12T09:20:00+08:00",
+        "resolved_at": null,
+        "summary": "Regional gateway sessions are dropping; cause not yet confirmed."
+      }
+    ]
+  },
+  "faults": []
+}

@@ -1,0 +1,151 @@
+{
+  "version": "1.0",
+  "default_decision": "deny",
+  "precedence": [
+    "deny",
+    "approval_required",
+    "allow"
+  ],
+  "condition_semantics": "All conditions require exact equality against trusted backend facts. Missing facts do not match. Resource scope must match. No match means deny.",
+  "approval_ttl_seconds": 1800,
+  "approval_binding": [
+    "proposal_id",
+    "employee_id",
+    "resource_id",
+    "environment",
+    "role",
+    "policy_version"
+  ],
+  "approver_constraints": {
+    "manager": "Employee's directory manager; requester cannot self-approve."
+  },
+  "rules": [
+    {
+      "rule_id": "POL-001",
+      "version": "1.0",
+      "operation": "unlock_demo_account",
+      "resource_scope": [
+        "okta"
+      ],
+      "conditions": {
+        "identity_verified": true,
+        "target_is_self": true,
+        "account_state": "locked",
+        "employee_consent": true
+      },
+      "decision": "allow",
+      "approver_role": null,
+      "verification_requirements": [
+        "account_active",
+        "employee_login_confirmed"
+      ]
+    },
+    {
+      "rule_id": "POL-002",
+      "version": "1.0",
+      "operation": "refresh_demo_vpn_profile",
+      "resource_scope": [
+        "vpn"
+      ],
+      "conditions": {
+        "identity_verified": true,
+        "assigned_managed_device": true,
+        "employee_consent": true,
+        "profile_is_stale": true,
+        "regional_outage": false
+      },
+      "decision": "allow",
+      "approver_role": null,
+      "verification_requirements": [
+        "profile_current",
+        "stable_connection_confirmed"
+      ]
+    },
+    {
+      "rule_id": "POL-003",
+      "version": "1.0",
+      "operation": "grant_demo_access",
+      "resource_scope": [
+        "snowflake-prod"
+      ],
+      "conditions": {
+        "identity_verified": true,
+        "target_is_self": true,
+        "department": "Data Engineering",
+        "environment": "PROD",
+        "requested_role": "reader"
+      },
+      "decision": "approval_required",
+      "approver_role": "manager",
+      "verification_requirements": [
+        "grant_active",
+        "resource_probe_passed"
+      ]
+    },
+    {
+      "rule_id": "POL-004",
+      "version": "1.0",
+      "operation": "grant_demo_access",
+      "resource_scope": [
+        "grafana-internal"
+      ],
+      "conditions": {
+        "identity_verified": true,
+        "target_is_self": true,
+        "department": "Data Engineering",
+        "environment": "INTERNAL",
+        "requested_role": "viewer",
+        "employee_consent": true
+      },
+      "decision": "allow",
+      "approver_role": null,
+      "verification_requirements": [
+        "grant_active",
+        "resource_probe_passed"
+      ]
+    },
+    {
+      "rule_id": "POL-005",
+      "version": "1.0",
+      "operation": "grant_demo_access",
+      "resource_scope": [
+        "snowflake-prod"
+      ],
+      "conditions": {
+        "requested_role": "writer"
+      },
+      "decision": "deny",
+      "approver_role": null,
+      "verification_requirements": []
+    },
+    {
+      "rule_id": "POL-006",
+      "version": "1.0",
+      "operation": "modify_production_network",
+      "resource_scope": [
+        "jenkins",
+        "snowflake"
+      ],
+      "conditions": {},
+      "decision": "deny",
+      "approver_role": null,
+      "verification_requirements": []
+    },
+    {
+      "rule_id": "POL-007",
+      "version": "1.0",
+      "operation": "create_handoff",
+      "resource_scope": [
+        "*"
+      ],
+      "conditions": {
+        "case_owner_verified": true
+      },
+      "decision": "allow",
+      "approver_role": null,
+      "verification_requirements": [
+        "handoff_persisted"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+[
+  {
+    "change_id": "CHG-001",
+    "service_ids": [
+      "jenkins",
+      "snowflake",
+      "tableau"
+    ],
+    "environment": "PROD",
+    "started_at": "2026-10-09T20:00:00+08:00",
+    "ended_at": "2026-10-09T21:00:00+08:00",
+    "summary": "Rotated ETL service credentials and updated the production network allowlist.",
+    "status": "completed"
+  }
+]

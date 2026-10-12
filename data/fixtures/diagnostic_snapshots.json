@@ -1,0 +1,131 @@
+[
+  {
+    "snapshot_id": "VPN-001",
+    "employee_id": "EMP-001",
+    "device_id": "DEV-001",
+    "service_id": "vpn",
+    "observed_at": "2026-10-12T09:55:00+08:00",
+    "observations": {
+      "profile_revision": 2,
+      "required_profile_revision": 2,
+      "disconnect_interval_minutes": null,
+      "last_error": null
+    }
+  },
+  {
+    "snapshot_id": "VPN-002",
+    "employee_id": "EMP-002",
+    "device_id": "DEV-002",
+    "service_id": "vpn",
+    "observed_at": "2026-10-12T09:55:00+08:00",
+    "observations": {
+      "profile_revision": 2,
+      "required_profile_revision": 2,
+      "disconnect_interval_minutes": null,
+      "last_error": null
+    }
+  },
+  {
+    "snapshot_id": "VPN-003",
+    "employee_id": "EMP-003",
+    "device_id": "DEV-003",
+    "service_id": "vpn",
+    "observed_at": "2026-10-12T09:55:00+08:00",
+    "observations": {
+      "profile_revision": 2,
+      "required_profile_revision": 2,
+      "disconnect_interval_minutes": null,
+      "last_error": null
+    }
+  },
+  {
+    "snapshot_id": "VPN-004",
+    "employee_id": "EMP-004",
+    "device_id": "DEV-004",
+    "service_id": "vpn",
+    "observed_at": "2026-10-12T09:55:00+08:00",
+    "observations": {
+      "profile_revision": 1,
+      "required_profile_revision": 2,
+      "disconnect_interval_minutes": 12,
+      "last_error": "PROFILE_REVISION_MISMATCH"
+    }
+  },
+  {
+    "snapshot_id": "VPN-005",
+    "employee_id": "EMP-005",
+    "device_id": "DEV-005",
+    "service_id": "vpn",
+    "observed_at": "2026-10-12T09:55:00+08:00",
+    "observations": {
+      "profile_revision": 2,
+      "required_profile_revision": 2,
+      "disconnect_interval_minutes": null,
+      "last_error": null
+    }
+  },
+  {
+    "snapshot_id": "VPN-006",
+    "employee_id": "EMP-006",
+    "device_id": "DEV-006",
+    "service_id": "vpn",
+    "observed_at": "2026-10-12T09:55:00+08:00",
+    "observations": {
+      "profile_revision": 2,
+      "required_profile_revision": 2,
+      "disconnect_interval_minutes": null,
+      "last_error": null
+    }
+  },
+  {
+    "snapshot_id": "VPN-007",
+    "employee_id": "EMP-007",
+    "device_id": "DEV-007",
+    "service_id": "vpn",
+    "observed_at": "2026-10-12T09:55:00+08:00",
+    "observations": {
+      "profile_revision": 2,
+      "required_profile_revision": 2,
+      "disconnect_interval_minutes": null,
+      "last_error": null
+    }
+  },
+  {
+    "snapshot_id": "VPN-008",
+    "employee_id": "EMP-008",
+    "device_id": "DEV-008",
+    "service_id": "vpn",
+    "observed_at": "2026-10-12T09:55:00+08:00",
+    "observations": {
+      "profile_revision": 2,
+      "required_profile_revision": 2,
+      "disconnect_interval_minutes": null,
+      "last_error": null
+    }
+  },
+  {
+    "snapshot_id": "BUILD-001",
+    "employee_id": "EMP-004",
+    "device_id": null,
+    "service_id": "jenkins",
+    "observed_at": "2026-10-12T09:55:00+08:00",
+    "observations": {
+      "job": "daily-sales-etl",
+      "environment": "PROD",
+      "last_build_status": "success",
+      "error": null
+    }
+  },
+  {
+    "snapshot_id": "REPORT-001",
+    "employee_id": "EMP-004",
+    "device_id": null,
+    "service_id": "tableau",
+    "observed_at": "2026-10-12T09:55:00+08:00",
+    "observations": {
+      "report": "sales-dashboard",
+      "last_refresh_at": "2026-10-12T09:00:00+08:00",
+      "upstream_service_id": "jenkins"
+    }
+  }
+]

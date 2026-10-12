@@ -1,0 +1,12 @@
+[
+  {
+    "grant_id": "GRANT-001",
+    "employee_id": "EMP-004",
+    "resource_id": "snowflake-dev",
+    "environment": "DEV",
+    "role": "reader",
+    "status": "active",
+    "granted_at": "2026-09-20T10:00:00+08:00",
+    "approval_id": "LEGACY-001"
+  }
+]

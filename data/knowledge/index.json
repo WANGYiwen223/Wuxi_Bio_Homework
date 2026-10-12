@@ -1,0 +1,197 @@
+[
+  {
+    "article_id": "KB-001",
+    "title": "Locked Okta account",
+    "service_id": "okta",
+    "tags": [
+      "okta",
+      "account",
+      "locked"
+    ],
+    "version": "1.0",
+    "updated_at": "2026-10-10T09:00:00+08:00",
+    "applicability": "Repeated failures; account reports locked",
+    "path": "okta_account_locked.md"
+  },
+  {
+    "article_id": "KB-002",
+    "title": "MFA device unavailable",
+    "service_id": "okta",
+    "tags": [
+      "okta",
+      "mfa",
+      "recovery"
+    ],
+    "version": "1.0",
+    "updated_at": "2026-10-10T09:00:00+08:00",
+    "applicability": "Active account with missing MFA device",
+    "path": "okta_mfa_recovery.md"
+  },
+  {
+    "article_id": "KB-003",
+    "title": "Identity service outage",
+    "service_id": "okta",
+    "tags": [
+      "okta",
+      "service",
+      "outage"
+    ],
+    "version": "1.0",
+    "updated_at": "2026-10-10T09:00:00+08:00",
+    "applicability": "Multiple users affected",
+    "path": "okta_service_outage.md"
+  },
+  {
+    "article_id": "KB-004",
+    "title": "Recurring VPN disconnects",
+    "service_id": "vpn",
+    "tags": [
+      "vpn",
+      "disconnects"
+    ],
+    "version": "1.0",
+    "updated_at": "2026-10-10T09:00:00+08:00",
+    "applicability": "Remote device disconnects every 10–15 minutes",
+    "path": "vpn_disconnects.md"
+  },
+  {
+    "article_id": "KB-005",
+    "title": "Refresh stale managed VPN profile",
+    "service_id": "vpn",
+    "tags": [
+      "vpn",
+      "stale",
+      "profile"
+    ],
+    "version": "1.0",
+    "updated_at": "2026-10-10T09:00:00+08:00",
+    "applicability": "Managed device; observed profile revision mismatch",
+    "path": "vpn_stale_profile.md"
+  },
+  {
+    "article_id": "KB-006",
+    "title": "VPN regional gateway incident",
+    "service_id": "vpn",
+    "tags": [
+      "vpn",
+      "regional",
+      "outage"
+    ],
+    "version": "1.0",
+    "updated_at": "2026-10-10T09:00:00+08:00",
+    "applicability": "Applicable regional incident",
+    "path": "vpn_regional_outage.md"
+  },
+  {
+    "article_id": "KB-007",
+    "title": "Salesforce regional latency",
+    "service_id": "salesforce",
+    "tags": [
+      "salesforce",
+      "regional",
+      "latency"
+    ],
+    "version": "1.0",
+    "updated_at": "2026-10-10T09:00:00+08:00",
+    "applicability": "Slow loading shared by colleagues",
+    "path": "salesforce_regional_latency.md"
+  },
+  {
+    "article_id": "KB-008",
+    "title": "Snowflake production reader access",
+    "service_id": "snowflake",
+    "tags": [
+      "snowflake",
+      "access",
+      "request"
+    ],
+    "version": "1.0",
+    "updated_at": "2026-10-10T09:00:00+08:00",
+    "applicability": "Data Engineering employee requests PROD reader",
+    "path": "snowflake_access_request.md"
+  },
+  {
+    "article_id": "KB-009",
+    "title": "Internal Grafana viewer access",
+    "service_id": "grafana",
+    "tags": [
+      "grafana",
+      "access",
+      "request"
+    ],
+    "version": "1.0",
+    "updated_at": "2026-10-10T09:00:00+08:00",
+    "applicability": "Data Engineering employee requests internal dashboards",
+    "path": "grafana_access_request.md"
+  },
+  {
+    "article_id": "KB-010",
+    "title": "Pipeline failure after maintenance",
+    "service_id": "jenkins",
+    "tags": [
+      "pipeline",
+      "after",
+      "maintenance"
+    ],
+    "version": "1.0",
+    "updated_at": "2026-10-10T09:00:00+08:00",
+    "applicability": "Timeout after change window; reports stale",
+    "path": "pipeline_after_maintenance.md"
+  },
+  {
+    "article_id": "KB-011",
+    "title": "Stale downstream reports",
+    "service_id": "tableau",
+    "tags": [
+      "tableau",
+      "stale",
+      "reports"
+    ],
+    "version": "1.0",
+    "updated_at": "2026-10-10T09:00:00+08:00",
+    "applicability": "Report refresh timestamp is old",
+    "path": "tableau_stale_reports.md"
+  },
+  {
+    "article_id": "KB-012",
+    "title": "Application access denied",
+    "service_id": "grafana",
+    "tags": [
+      "software",
+      "access",
+      "denied"
+    ],
+    "version": "1.0",
+    "updated_at": "2026-10-10T09:00:00+08:00",
+    "applicability": "User can log in but dashboard access fails",
+    "path": "software_access_denied.md"
+  },
+  {
+    "article_id": "KB-013",
+    "title": "Ambiguous IT issue triage",
+    "service_id": "okta",
+    "tags": [
+      "unknown",
+      "issue",
+      "triage"
+    ],
+    "version": "1.0",
+    "updated_at": "2026-10-10T09:00:00+08:00",
+    "applicability": "Employee reports a vague problem",
+    "path": "unknown_issue_triage.md"
+  },
+  {
+    "article_id": "KB-014",
+    "title": "Suspected account compromise",
+    "service_id": "okta",
+    "tags": [
+      "security",
+      "incident",
+      "handoff"
+    ],
+    "version": "1.0",
+    "updated_at": "2026-10-10T09:00:00+08:00",
+    "applicability": "Suspicious login or potential data breach",
+    "path": "security_incident_handoff.md"
+  }
+]

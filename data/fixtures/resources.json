@@ -1,0 +1,28 @@
+[
+  {
+    "resource_id": "snowflake-prod",
+    "service_id": "snowflake",
+    "environment": "PROD",
+    "supported_roles": [
+      "reader",
+      "writer"
+    ]
+  },
+  {
+    "resource_id": "snowflake-dev",
+    "service_id": "snowflake",
+    "environment": "DEV",
+    "supported_roles": [
+      "reader",
+      "writer"
+    ]
+  },
+  {
+    "resource_id": "grafana-internal",
+    "service_id": "grafana",
+    "environment": "INTERNAL",
+    "supported_roles": [
+      "viewer"
+    ]
+  }
+]

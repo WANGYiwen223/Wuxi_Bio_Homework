@@ -1,0 +1,82 @@
+[
+  {
+    "device_id": "DEV-001",
+    "employee_id": "EMP-001",
+    "os": "Windows 11",
+    "managed": true,
+    "vpn_client_version": "5.2.1",
+    "vpn_profile_revision": 2,
+    "required_vpn_profile_revision": 2,
+    "region": "ap-east"
+  },
+  {
+    "device_id": "DEV-002",
+    "employee_id": "EMP-002",
+    "os": "macOS 15",
+    "managed": true,
+    "vpn_client_version": "5.2.1",
+    "vpn_profile_revision": 2,
+    "required_vpn_profile_revision": 2,
+    "region": "us-central"
+  },
+  {
+    "device_id": "DEV-003",
+    "employee_id": "EMP-003",
+    "os": "Windows 11",
+    "managed": true,
+    "vpn_client_version": "5.2.1",
+    "vpn_profile_revision": 2,
+    "required_vpn_profile_revision": 2,
+    "region": "ap-east"
+  },
+  {
+    "device_id": "DEV-004",
+    "employee_id": "EMP-004",
+    "os": "macOS 15",
+    "managed": true,
+    "vpn_client_version": "5.2.1",
+    "vpn_profile_revision": 1,
+    "required_vpn_profile_revision": 2,
+    "region": "us-central"
+  },
+  {
+    "device_id": "DEV-005",
+    "employee_id": "EMP-005",
+    "os": "Windows 11",
+    "managed": true,
+    "vpn_client_version": "5.2.1",
+    "vpn_profile_revision": 2,
+    "required_vpn_profile_revision": 2,
+    "region": "ap-east"
+  },
+  {
+    "device_id": "DEV-006",
+    "employee_id": "EMP-006",
+    "os": "macOS 15",
+    "managed": true,
+    "vpn_client_version": "5.2.1",
+    "vpn_profile_revision": 2,
+    "required_vpn_profile_revision": 2,
+    "region": "us-central"
+  },
+  {
+    "device_id": "DEV-007",
+    "employee_id": "EMP-007",
+    "os": "Windows 11",
+    "managed": true,
+    "vpn_client_version": "5.2.1",
+    "vpn_profile_revision": 2,
+    "required_vpn_profile_revision": 2,
+    "region": "ap-east"
+  },
+  {
+    "device_id": "DEV-008",
+    "employee_id": "EMP-008",
+    "os": "macOS 15",
+    "managed": true,
+    "vpn_client_version": "5.2.1",
+    "vpn_profile_revision": 2,
+    "required_vpn_profile_revision": 2,
+    "region": "ap-east"
+  }
+]

@@ -1,0 +1,137 @@
+[
+  {
+    "history_id": "HIST-001",
+    "symptoms": "Account locked after repeated login attempts",
+    "service_ids": [
+      "okta"
+    ],
+    "environment": "INTERNAL",
+    "root_cause": "Temporary lockout",
+    "actions": [
+      "Authorized account unlock"
+    ],
+    "verified_outcome": "Employee confirmed login",
+    "resolved_at": "2026-09-11T10:00:00+08:00",
+    "scope": "Synthetic past case; compare current evidence before reuse."
+  },
+  {
+    "history_id": "HIST-002",
+    "symptoms": "Cannot log in after password change",
+    "service_ids": [
+      "okta"
+    ],
+    "environment": "INTERNAL",
+    "root_cause": "MFA device unavailable",
+    "actions": [
+      "IT identity recovery"
+    ],
+    "verified_outcome": "Employee completed MFA",
+    "resolved_at": "2026-09-12T10:00:00+08:00",
+    "scope": "Synthetic past case; compare current evidence before reuse."
+  },
+  {
+    "history_id": "HIST-003",
+    "symptoms": "Disconnects every 12 minutes on a remote laptop",
+    "service_ids": [
+      "vpn"
+    ],
+    "environment": "INTERNAL",
+    "root_cause": "Stale VPN profile",
+    "actions": [
+      "Refresh managed profile"
+    ],
+    "verified_outcome": "Stable session observed for 30 minutes",
+    "resolved_at": "2026-09-13T10:00:00+08:00",
+    "scope": "Synthetic past case; compare current evidence before reuse."
+  },
+  {
+    "history_id": "HIST-004",
+    "symptoms": "Multiple Chicago users disconnected",
+    "service_ids": [
+      "vpn"
+    ],
+    "environment": "INTERNAL",
+    "root_cause": "Regional gateway outage",
+    "actions": [
+      "Network team repaired gateway"
+    ],
+    "verified_outcome": "Gateway healthy and users reconnected",
+    "resolved_at": "2026-09-14T10:00:00+08:00",
+    "scope": "Synthetic past case; compare current evidence before reuse."
+  },
+  {
+    "history_id": "HIST-005",
+    "symptoms": "Slow loading in Chicago only",
+    "service_ids": [
+      "salesforce"
+    ],
+    "environment": "INTERNAL",
+    "root_cause": "Regional provider incident",
+    "actions": [
+      "Provider restored regional service"
+    ],
+    "verified_outcome": "Loading time returned to baseline",
+    "resolved_at": "2026-09-15T10:00:00+08:00",
+    "scope": "Synthetic past case; compare current evidence before reuse."
+  },
+  {
+    "history_id": "HIST-006",
+    "symptoms": "New engineer needs production read access",
+    "service_ids": [
+      "snowflake"
+    ],
+    "environment": "PROD",
+    "root_cause": "Missing approved grant",
+    "actions": [
+      "Manager approved reader grant"
+    ],
+    "verified_outcome": "Read-only probe succeeded",
+    "resolved_at": "2026-09-16T10:00:00+08:00",
+    "scope": "Synthetic past case; compare current evidence before reuse."
+  },
+  {
+    "history_id": "HIST-007",
+    "symptoms": "ETL timeout after maintenance",
+    "service_ids": [
+      "jenkins"
+    ],
+    "environment": "PROD",
+    "root_cause": "Network allowlist regression",
+    "actions": [
+      "SRE approved allowlist repair"
+    ],
+    "verified_outcome": "Build and downstream report refresh succeeded",
+    "resolved_at": "2026-09-17T10:00:00+08:00",
+    "scope": "Synthetic past case; compare current evidence before reuse."
+  },
+  {
+    "history_id": "HIST-008",
+    "symptoms": "ETL failure after credential rotation",
+    "service_ids": [
+      "jenkins"
+    ],
+    "environment": "PROD",
+    "root_cause": "Service credential expired",
+    "actions": [
+      "SRE rotated scoped service credential"
+    ],
+    "verified_outcome": "Build succeeded; no network change required",
+    "resolved_at": "2026-09-18T10:00:00+08:00",
+    "scope": "Synthetic past case; compare current evidence before reuse."
+  },
+  {
+    "history_id": "HIST-009",
+    "symptoms": "Dashboard access denied",
+    "service_ids": [
+      "grafana"
+    ],
+    "environment": "INTERNAL",
+    "root_cause": "Missing viewer group",
+    "actions": [
+      "Policy-approved viewer assignment"
+    ],
+    "verified_outcome": "Dashboard access check passed",
+    "resolved_at": "2026-09-19T10:00:00+08:00",
+    "scope": "Synthetic past case; compare current evidence before reuse."
+  }
+]

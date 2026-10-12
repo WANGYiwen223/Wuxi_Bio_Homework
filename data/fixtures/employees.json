@@ -1,0 +1,126 @@
+[
+  {
+    "employee_id": "EMP-001",
+    "name": "Alex Chen",
+    "email": "emp-001@example.test",
+    "department": "Data Engineering",
+    "location": "Shanghai",
+    "manager_id": "EMP-005",
+    "device_ids": [
+      "DEV-001"
+    ],
+    "account_status": "active",
+    "roles": [
+      "employee"
+    ]
+  },
+  {
+    "employee_id": "EMP-002",
+    "name": "Maya Patel",
+    "email": "emp-002@example.test",
+    "department": "Sales",
+    "location": "Chicago",
+    "manager_id": "EMP-006",
+    "device_ids": [
+      "DEV-002"
+    ],
+    "account_status": "active",
+    "roles": [
+      "employee"
+    ]
+  },
+  {
+    "employee_id": "EMP-003",
+    "name": "Jordan Lee",
+    "email": "emp-003@example.test",
+    "department": "Finance",
+    "location": "Shanghai",
+    "manager_id": "EMP-006",
+    "device_ids": [
+      "DEV-003"
+    ],
+    "account_status": "active",
+    "roles": [
+      "employee"
+    ]
+  },
+  {
+    "employee_id": "EMP-004",
+    "name": "Sam Rivera",
+    "email": "emp-004@example.test",
+    "department": "Data Engineering",
+    "location": "Remote-US",
+    "manager_id": "EMP-005",
+    "device_ids": [
+      "DEV-004"
+    ],
+    "account_status": "active",
+    "roles": [
+      "employee"
+    ]
+  },
+  {
+    "employee_id": "EMP-005",
+    "name": "Morgan Wu",
+    "email": "emp-005@example.test",
+    "department": "Data Engineering",
+    "location": "Shanghai",
+    "manager_id": null,
+    "device_ids": [
+      "DEV-005"
+    ],
+    "account_status": "active",
+    "roles": [
+      "employee",
+      "manager"
+    ]
+  },
+  {
+    "employee_id": "EMP-006",
+    "name": "Taylor Brooks",
+    "email": "emp-006@example.test",
+    "department": "Operations",
+    "location": "Chicago",
+    "manager_id": null,
+    "device_ids": [
+      "DEV-006"
+    ],
+    "account_status": "active",
+    "roles": [
+      "employee",
+      "manager"
+    ]
+  },
+  {
+    "employee_id": "EMP-007",
+    "name": "Casey Park",
+    "email": "emp-007@example.test",
+    "department": "IT",
+    "location": "Shanghai",
+    "manager_id": "EMP-006",
+    "device_ids": [
+      "DEV-007"
+    ],
+    "account_status": "active",
+    "roles": [
+      "employee",
+      "it_reviewer"
+    ]
+  },
+  {
+    "employee_id": "EMP-008",
+    "name": "Riley Kim",
+    "email": "emp-008@example.test",
+    "department": "Security",
+    "location": "Shanghai",
+    "manager_id": "EMP-006",
+    "device_ids": [
+      "DEV-008"
+    ],
+    "account_status": "active",
+    "roles": [
+      "employee",
+      "security_reviewer"
+    ]
+  }
+]

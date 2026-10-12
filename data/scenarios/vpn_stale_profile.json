@@ -1,0 +1,8 @@
+{
+  "scenario_id": "vpn_stale_profile",
+  "version": "1.0",
+  "clock": "2026-10-12T10:00:00+08:00",
+  "employee_id": "EMP-004",
+  "overrides": {},
+  "faults": []
+}
