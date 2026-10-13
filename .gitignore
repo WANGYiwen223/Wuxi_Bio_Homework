@@ -8,6 +8,7 @@ coverage.xml
 htmlcov/
 build/
 dist/
+data/
 
 # Virtual environments
 .venv/

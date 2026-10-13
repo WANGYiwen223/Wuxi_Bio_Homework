@@ -16,7 +16,7 @@ class HandoffService:
             case = self.repository._owned_case(db, context)
             if case.handoff_id:
                 existing = json.loads(db.execute("SELECT payload FROM handoffs WHERE record_id=?", (case.handoff_id,)).fetchone()[0])
-                return {"status": existing["status"], "handoff_id": case.handoff_id, "message": f"This case is already queued for {existing['support_group']} ({case.handoff_id})."}
+                return {"status": existing["status"], "handoff_id": case.handoff_id, "message": f"This case has already been handed to {existing['support_group']}. Current status: {existing['status']}."}
             if case.status == "resolved":
                 raise ValueError("Open a new case for a resolved issue")
             messages = [Message.model_validate_json(row[0]) for row in db.execute("SELECT payload FROM messages WHERE json_extract(payload,'$.case_id')=? ORDER BY rowid", (case.case_id,))]
@@ -41,8 +41,8 @@ class HandoffService:
             }
             db.execute("INSERT INTO handoffs VALUES (?,?)", (package["handoff_id"], json.dumps(package)))
             self.repository.update_case(db, case, context.clock.now(), status="escalated", handoff_id=package["handoff_id"])
-            db.execute("INSERT INTO audit_events VALUES (?,?)", (new_id("AUDIT"), json.dumps({"event": "handoff_created", "case_id": case.case_id, "handoff_id": package["handoff_id"], "actor_id": context.employee_id, "created_at": context.clock.now().isoformat()})))
-            return {"status": "queued", "handoff_id": package["handoff_id"], "message": f"I queued your case for {group} with the investigation context ({package['handoff_id']}). A specialist has not acknowledged it yet."}
+            self.repository.audit(db, {"event": "handoff_created", "case_id": case.case_id, "handoff_id": package["handoff_id"], "actor_id": context.employee_id, "created_at": context.clock.now().isoformat()})
+            return {"status": "queued", "handoff_id": package["handoff_id"], "message": f"I queued your case for {group} with the investigation context. A specialist has not acknowledged it yet."}
 
     def _reviewer(self, db, session_id):
         employee_id, verified = self.repository._session(db, session_id)
@@ -76,5 +76,5 @@ class HandoffService:
                 return package
             package.update(status="acknowledged", acknowledged_by=reviewer["employee_id"], acknowledged_at=clock.now().isoformat())
             db.execute("UPDATE handoffs SET payload=? WHERE record_id=?", (json.dumps(package), handoff_id))
-            db.execute("INSERT INTO audit_events VALUES (?,?)", (new_id("AUDIT"), json.dumps({"event": "handoff_acknowledged", "case_id": package["case_id"], "actor_id": reviewer["employee_id"], "created_at": clock.now().isoformat()})))
+            self.repository.audit(db, {"event": "handoff_acknowledged", "case_id": package["case_id"], "actor_id": reviewer["employee_id"], "created_at": clock.now().isoformat()})
             return package

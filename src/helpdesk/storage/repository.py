@@ -1,6 +1,7 @@
 """SQLite source/case repositories with session scope and optimistic updates."""
 
 from contextlib import contextmanager
+from datetime import datetime, timezone
 from pathlib import Path
 import json
 import sqlite3
@@ -8,6 +9,7 @@ import secrets
 
 from helpdesk.bootstrap.context import Clock, ToolContext
 from helpdesk.domain.contracts import Case, EvidenceRecord, Message, new_id
+from helpdesk.observability.events import log_event
 
 SOURCE_TABLES = {"employees", "devices", "resources", "access_grants", "services", "incidents", "changes", "account_states", "diagnostic_snapshots", "resolution_history"}
 RECORD_TABLES = {"cases", "messages", "evidence", "proposals", "approvals", "actions", "handoffs", "audit_events"}
@@ -19,6 +21,12 @@ class AccessDenied(Exception):
 
 class RevisionConflict(Exception):
     pass
+
+
+class AuditConnection(sqlite3.Connection):
+    """Buffer log delivery until its owning transaction commits."""
+
+    pending_events: list
 
 
 class Repository:
@@ -40,12 +48,15 @@ class Repository:
 
     @contextmanager
     def transaction(self):
-        db = sqlite3.connect(self.path, timeout=5)
+        db = sqlite3.connect(self.path, timeout=5, factory=AuditConnection)
+        db.pending_events = []
         try:
             db.execute("PRAGMA foreign_keys=ON")
             db.execute("BEGIN IMMEDIATE")
             yield db
             db.commit()
+            for event in db.pending_events:
+                log_event(event)
         except Exception:
             db.rollback()
             raise
@@ -147,7 +158,7 @@ class Repository:
                     raise AccessDenied("Evidence scope mismatch")
                 db.execute("INSERT INTO evidence VALUES (?,?)", (item.evidence_id, item.model_dump_json()))
             event = {"case_id": context.case_id, "employee_id": context.employee_id, "event": "tool_result", "tool_name": tool_name, "tool_call_id": result.tool_call_id, "status": result.status, "evidence_ids": [e.evidence_id for e in evidence], "error_code": result.error.code if result.error else None, "created_at": context.clock.now().isoformat()}
-            db.execute("INSERT INTO audit_events VALUES (?,?)", (new_id("AUDIT"), json.dumps(event)))
+            self.audit(db, event)
 
     def evidence(self, context: ToolContext) -> list[EvidenceRecord]:
         with self.transaction() as db:
@@ -169,4 +180,16 @@ class Repository:
         with self.transaction() as db:
             self._owned_case(db, context)
             payload = {"case_id": context.case_id, "event": event, "created_at": context.clock.now().isoformat(), **metrics}
-            db.execute("INSERT INTO audit_events VALUES (?,?)", (new_id("TRACE"), json.dumps(payload)))
+            self.audit(db, payload)
+
+    @staticmethod
+    def audit(db, payload):
+        payload = {**payload, "recorded_at": datetime.now(timezone.utc).isoformat()}
+        cursor = db.execute("INSERT INTO audit_events VALUES (?,?)", (new_id("AUDIT"), json.dumps(payload)))
+        db.pending_events.append({**payload, "sequence": cursor.lastrowid})
+
+    def events(self, context, after=0, limit=200):
+        with self.transaction() as db:
+            self._owned_case(db, context)
+            rows = db.execute("SELECT rowid,payload FROM audit_events WHERE rowid>? AND json_extract(payload,'$.case_id')=? ORDER BY rowid LIMIT ?", (after, context.case_id, limit))
+            return [{**json.loads(row[1]), "sequence": row[0]} for row in rows]

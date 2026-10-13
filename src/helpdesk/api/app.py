@@ -3,12 +3,13 @@
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-from fastapi import FastAPI, Header, Request
+from fastapi import FastAPI, Header, Query, Request
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, ConfigDict, Field, StrictBool
 
 from helpdesk.storage.repository import AccessDenied, RevisionConflict
+from helpdesk.observability.presentation import activity, present_answer, source_catalog
 
 
 class Body(BaseModel):
@@ -102,7 +103,27 @@ def create_app(runtime, ui_dir: Path | None = None):
             with runtime.repository.transaction() as db:
                 item = json.loads(db.execute("SELECT payload FROM handoffs WHERE record_id=?", (case.handoff_id,)).fetchone()[0])
                 handoff = {k: item[k] for k in ["handoff_id", "status", "support_group", "acknowledged_at"]}
-        return {"case": case.model_dump(mode="json", exclude={"session_id"}), "messages": [m.model_dump(mode="json") for m in runtime.repository.messages(ctx)], "evidence": [{"evidence_id": e.evidence_id, "source": e.source.model_dump(mode="json"), "tool_name": e.tool_name} for e in runtime.repository.evidence(ctx)], "handoff": handoff}
+        evidence = runtime.repository.evidence(ctx)
+        messages = [{**m.model_dump(mode="json"), **(present_answer(m.text, evidence) if m.role == "assistant" else {"citations": []})} for m in runtime.repository.messages(ctx)]
+        public_case = case.model_dump(mode="json", exclude={"session_id"})
+        if pending := public_case["facts"].get("pending_consent"):
+            pending["explanation"] = present_answer(pending["explanation"], evidence)["text"]
+        return {"case": public_case, "messages": messages, "sources": source_catalog(evidence)[0], "evidence": [{"evidence_id": e.evidence_id, "source": e.source.model_dump(mode="json"), "tool_name": e.tool_name} for e in evidence], "handoff": handoff}
+
+    @app.get("/cases/{case_id}/activity")
+    def case_activity(case_id: str, after: int = Query(default=0, ge=0), authorization: str | None = Header(default=None)):
+        ctx = context(case_id, authorization)
+        events = runtime.repository.events(ctx, after)
+        return {"events": [item for event in events if (item := activity(event)) is not None],
+                "cursor": events[-1]["sequence"] if events else after, "has_more": len(events) == 200}
+
+    @app.get("/cases/{case_id}/diagnostics")
+    def case_diagnostics(case_id: str, after: int = Query(default=0, ge=0), authorization: str | None = Header(default=None)):
+        # Same ownership boundary as the case; this is a local demo inspector,
+        # not a production developer role or an authorization bypass.
+        ctx = context(case_id, authorization)
+        events = runtime.repository.events(ctx, after)
+        return {"events": events, "cursor": events[-1]["sequence"] if events else after, "has_more": len(events) == 200}
 
     @app.post("/cases/{case_id}/messages")
     def message(case_id: str, body: MessageBody, authorization: str | None = Header(default=None)):

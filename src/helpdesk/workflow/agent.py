@@ -10,10 +10,11 @@ from langgraph.graph import END, START, StateGraph
 from langgraph.checkpoint.sqlite import SqliteSaver
 from pydantic import Field, ValidationError
 
-from helpdesk.domain.contracts import ActionRequest
+from helpdesk.domain.contracts import ActionRequest, new_id
 from helpdesk.domain.lifecycle import transition
 from helpdesk.models.client import ModelFailure
 from helpdesk.observability.redaction import redact
+from helpdesk.observability.presentation import TOOL_LABELS, present_answer
 from helpdesk.tools.read_tools import Args
 from helpdesk.workflow.prompts import SYSTEM_PROMPT
 
@@ -53,6 +54,7 @@ class ProposeArgs(Args):
 
 
 class LoopState(TypedDict, total=False):
+    turn_id: str
     dialogue: list[dict]
     model_calls: int
     tool_calls: int
@@ -100,15 +102,17 @@ class DiagnosticAgent:
         if len(json.dumps(messages)) > self.settings.max_context_chars:
             return {"stop": True, "failure": "context_budget", "final": "The investigation reached its context limit. I will preserve the findings for IT."}
         started = time.monotonic()
+        call_id = new_id("MODEL")
+        trace = {"turn_id": state["turn_id"], "call_id": call_id, "model_call": state["model_calls"] + 1}
+        self.repository.trace(context, "model_started", trace)
         try:
             reply = self.model.respond(messages, self._schemas())
         except ModelFailure as error:
-            self.repository.trace(context, "model_failure", {"error_type": error.category, "duration_ms": round((time.monotonic() - started) * 1000)})
+            self.repository.trace(context, "model_failure", {**trace, "error_type": error.category, "duration_ms": round((time.monotonic() - started) * 1000)})
             latest = self.repository.get_case(context)
             self.repository.save_case(context, transition(latest, latest.status, context.clock.now(), tool_errors=[*latest.tool_errors, {"tool_name": "model", "code": error.category}]))
             return {"model_calls": state["model_calls"] + 1, "stop": True, "failure": "model_unavailable", "final": "The model service is unavailable. I will preserve the investigation for IT."}
-        if hasattr(self.repository, "trace"):
-            self.repository.trace(context, "model_call", {"duration_ms": round((time.monotonic() - started) * 1000), "input_tokens": reply.input_tokens, "output_tokens": reply.output_tokens})
+        self.repository.trace(context, "model_call", {**trace, "duration_ms": round((time.monotonic() - started) * 1000), "input_tokens": reply.input_tokens, "output_tokens": reply.output_tokens})
         calls = [c.model_dump() for c in reply.calls]
         assistant = {"role": "assistant", "content": redact(reply.text) or None}
         if calls:
@@ -128,9 +132,13 @@ class DiagnosticAgent:
         executed = 0
         for call in state["last_calls"]:
             name = call["name"]
+            started = time.monotonic()
+            trace = {"turn_id": state["turn_id"], "call_id": call["call_id"], "tool_name": name if name in TOOL_LABELS else "unknown_tool"}
             if stop or state["tool_calls"] + executed >= self.settings.max_tool_calls:
                 output = {"status": "denied", "reason": "Turn already stopped or tool budget exhausted"}
+                trace["skipped"] = True
             else:
+                self.repository.trace(context, "tool_started", trace)
                 executed += 1
                 try:
                     args = json.loads(call["arguments"])
@@ -146,7 +154,7 @@ class DiagnosticAgent:
                         elif name == "request_consent":
                             case = self.repository.get_case(context)
                             self.repository.save_case(context, transition(case, "awaiting_employee", context.clock.now(), facts={**case.facts, "pending_consent": {"operation": parsed.operation, "explanation": redact(parsed.explanation)}}))
-                            final, stop = f"Please use the consent control to allow {parsed.operation}: {redact(parsed.explanation)}", True
+                            final, stop = f"{redact(parsed.explanation)}\nPlease use the permission buttons below to continue or decline.", True
                             output = {"status": "awaiting_employee_consent", "operation": parsed.operation}
                         elif name == "propose_action" and self.action_handler:
                             request = ActionRequest(**{**parsed.model_dump(), "parameters": parsed.parameters.model_dump(exclude_none=True)})
@@ -174,6 +182,13 @@ class DiagnosticAgent:
                             self.repository.save_case(context, transition(case, case.status, context.clock.now(), tool_errors=[*case.tool_errors, {"tool_name": name, "code": result.error.code}]))
                 except (ValueError, ValidationError):
                     output = {"status": "error", "error": {"code": "INVALID_ARGUMENTS", "retryable": False}}
+            self.repository.trace(context, "tool_completed", {
+                **trace, "status": "skipped" if trace.get("skipped") else output.get("status", "unknown"),
+                "duration_ms": round((time.monotonic() - started) * 1000),
+                "error_code": (output.get("error") or {}).get("code"),
+                "evidence_ids": output.get("evidence_ids", []),
+                "read_call_id": output.get("tool_call_id"),
+            })
             dialogue.append({"role": "tool", "tool_call_id": call["call_id"], "content": json.dumps(output, ensure_ascii=False)})
         return {"dialogue": dialogue, "tool_calls": state["tool_calls"] + executed, "signatures": signatures, "fingerprints": fingerprints, "duplicate_calls": duplicates, "stop": stop, "final": final, "failure": failure}
 
@@ -207,12 +222,23 @@ class DiagnosticAgent:
 
     def turn(self, context, text):
         with self._lock:
-            started = time.monotonic()
             case = self.repository.get_case(context)
             if case.status in {"resolved", "escalated", "awaiting_approval"}:
                 raise ValueError("This case is closed or waiting for reviewer approval")
             if case.status == "awaiting_verification":
                 raise ValueError("Submit fix feedback before continuing diagnosis")
+            turn_id = new_id("TURN")
+            self.repository.trace(context, "turn_started", {"turn_id": turn_id})
+            try:
+                return self._turn(context, text, turn_id)
+            except Exception as error:
+                self.repository.trace(context, "turn_failed", {"turn_id": turn_id, "error_type": type(error).__name__})
+                raise
+
+    def _turn(self, context, text, turn_id):
+        with self._lock:
+            started = time.monotonic()
+            case = self.repository.get_case(context)
             if case.status != "investigating":
                 self.repository.save_case(context, transition(case, "investigating", context.clock.now()))
             safe_text = redact(text)
@@ -231,7 +257,7 @@ class DiagnosticAgent:
                 # Recover conversation if a checkpoint file was lost; business state survives.
                 dialogue = [{"role": "user" if m.role == "employee" else "assistant", "content": m.text} for m in self.repository.messages(context)[:-1]]
             dialogue = self._reconcile_dialogue(context, dialogue)
-            initial = {"dialogue": [*dialogue, {"role": "user", "content": safe_text}], "model_calls": 0, "tool_calls": 0, "input_tokens": 0, "output_tokens": 0, "stop": False, "final": "", "failure": "", "signatures": [], "fingerprints": {}, "duplicate_calls": 0}
+            initial = {"turn_id": turn_id, "dialogue": [*dialogue, {"role": "user", "content": safe_text}], "model_calls": 0, "tool_calls": 0, "input_tokens": 0, "output_tokens": 0, "stop": False, "final": "", "failure": "", "signatures": [], "fingerprints": {}, "duplicate_calls": 0}
             state = graph.invoke(initial, config)
             if state.get("failure") and self.handoff_handler:
                 state["final"] = self.handoff_handler(context, state["failure"])["message"]
@@ -242,5 +268,7 @@ class DiagnosticAgent:
             self.repository.append_message(context, "assistant", state["final"])
             metrics = {k: state[k] for k in ["model_calls", "tool_calls", "input_tokens", "output_tokens"]}
             metrics["duration_ms"] = round((time.monotonic() - started) * 1000)
-            self.repository.trace(context, "turn_completed", metrics)
-            return {"message": state["final"], "case": self.repository.get_case(context).model_dump(mode="json", exclude={"session_id"}), "metrics": metrics, "failure": state.get("failure") or None}
+            current = self.repository.get_case(context)
+            self.repository.trace(context, "turn_completed", {**metrics, "turn_id": turn_id, "case_status": current.status, "failure": state.get("failure") or None})
+            answer = present_answer(state["final"], self.repository.evidence(context))
+            return {"message": answer["text"], "citations": answer["citations"], "case": current.model_dump(mode="json", exclude={"session_id"}), "metrics": metrics, "failure": state.get("failure") or None}

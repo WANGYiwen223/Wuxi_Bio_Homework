@@ -3,7 +3,7 @@
 from datetime import timedelta
 import json
 
-from helpdesk.domain.contracts import ActionRequest, Approval, Case, Proposal, new_id
+from helpdesk.domain.contracts import ActionRequest, Approval, Case, Proposal
 from helpdesk.policy.engine import PolicyEngine, scope_hash
 from helpdesk.storage.repository import AccessDenied, Repository
 
@@ -45,7 +45,7 @@ class ApprovalService:
 
     @staticmethod
     def _audit(db, event, actor_id, now, **detail):
-        db.execute("INSERT INTO audit_events VALUES (?,?)", (new_id("AUDIT"), json.dumps({"event": event, "actor_id": actor_id, "created_at": now.isoformat(), **detail})))
+        Repository.audit(db, {"event": event, "actor_id": actor_id, "created_at": now.isoformat(), **detail})
 
     @staticmethod
     def _reviewer(db, session_id):

@@ -44,7 +44,7 @@ class ResolutionService:
             with self.repository.transaction() as db:
                 case = self.repository._owned_case(db, context)
                 self.repository.update_case(db, case, context.clock.now(), status="awaiting_approval", facts={**case.facts, "pending_proposal_id": proposal.proposal_id, "approval_id": approval.approval_id})
-            return {"status": "awaiting_approval", "approval_id": approval.approval_id, "stop": True, "message": f"Your request is awaiting the scoped manager's approval ({approval.approval_id}). No access has been granted."}
+            return {"status": "awaiting_approval", "approval_id": approval.approval_id, "stop": True, "message": "Your request is awaiting your manager's approval. No access has been granted. You can check the approval status here."}
         if proposal.decision.decision == "deny":
             return {"status": "denied", "reason": proposal.decision.reason, "proposal_id": proposal.proposal_id}
         record = self.execute(context, proposal.proposal_id)
