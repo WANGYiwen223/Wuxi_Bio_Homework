@@ -1,6 +1,6 @@
 # Implementation Progress
 
-Updated: 2026-10-12, after the pipeline-maintenance live retest.
+Updated: 2026-10-14 with current test counts; live-validation content dates from 2026-10-12/13.
 
 ## Implemented and tested
 
@@ -8,13 +8,13 @@ Updated: 2026-10-12, after the pipeline-maintenance live retest.
 - Step 1: contracts, trusted context, case lifecycle and repository continuity (6 tests).
 - Step 2: scoped read tools, lexical retrieval, provenance and persistent fault injection (11 tests).
 - Step 3: deterministic policy and scoped manager approval, including expiry and fresh authorization (13 tests).
-- Step 4: configured-provider adapter and LangGraph tool loop, budgets, multi-turn state, strict action schemas and interrupted-call reconciliation (9 tests across settings/model and workflow).
+- Step 4: configured-provider adapter and LangGraph tool loop, budgets, multi-turn state, strict action schemas and interrupted-call reconciliation (29 tests across settings/model and workflow).
 - Step 5: transactional simulated actions, idempotency and independent outcome verification (6 tests).
 - Step 6: durable contextual handoff and specialist acknowledgement (2 tests).
 - Step 7: FastAPI employee/reviewer flows and minimal browser interface (4 API tests). Static-page tests and JavaScript syntax checks passed; visual/interaction QA remains pending.
 - Step 8: live evaluation runner, observable-outcome scoring, redacted traces, evaluation records and demo instructions (2 scoring tests plus live trials).
 
-The full current suite uses the project `.venv`: `.venv/Scripts/python.exe -m pytest -q` — **56 passed in 11.68 seconds**. These tests validate implementation behavior; scripted model doubles do not measure model quality. Dependency versions are captured in `requirements.lock`.
+The full current suite uses the project `.venv`: `.venv/Scripts/python.exe -m pytest -q` — **83 passed in 7.58 seconds**. These tests validate implementation behavior; scripted model doubles do not measure model quality. Dependency versions are captured in `requirements.lock`.
 
 ## Latest live validation
 

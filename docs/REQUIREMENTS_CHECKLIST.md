@@ -7,7 +7,7 @@ The audit does not equate a prompt instruction with verified model behavior. **M
 Verification during this audit:
 
 - `.venv/Scripts/python.exe scripts/demo_data.py validate`: seven scenarios, 14 articles, seven policy rules, and fixture references validated.
-- `.venv/Scripts/python.exe -m pytest -q`: **56 passed in 10.69 seconds**; deterministic tests use isolated local systems and model doubles.
+- `.venv/Scripts/python.exe -m pytest -q`: **83 passed in 7.58 seconds**; deterministic tests use isolated local systems and model doubles.
 - `.venv/Scripts/python.exe -m pip check`: no broken requirements in the current Python **3.13.5** environment. A clean installation on another machine was not performed.
 - Saved live evaluations and their limitations are summarized in [EVALUATION.md](EVALUATION.md). The latest pipeline trial passed; the latest account-unlock trial failed at the provider boundary.
 

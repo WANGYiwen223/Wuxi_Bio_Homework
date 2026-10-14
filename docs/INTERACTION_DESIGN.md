@@ -79,6 +79,6 @@ Integration coverage includes concurrent activity reads while the model is block
 cross-employee and cross-session rejection, incremental cursors, valid and unknown
 citations, saved-message rendering, duplicate source snapshots, skipped/invalid
 tools, unexpected failures, and suppressing logs for rolled-back transactions.
-The deterministic suite passed 62 tests on 2026-10-13. Browser checks with an
+The deterministic suite passed 83 tests on 2026-10-14. Browser checks with an
 isolated scripted model confirmed in-flight progress and clickable source expansion.
 These checks do not establish citation quality for all real-model responses.
