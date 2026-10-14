@@ -23,8 +23,6 @@ tests/            Unit, integration and conversation-outcome evaluations
 var/              Ignored generated databases, checkpoints and results
 ```
 
-Directories retain ownership notes. Contracts, repositories, read tools, policy/approval, model/workflow, resolution, escalation, API/UI and evaluation modules are now implemented. See the implementation plan for per-stage acceptance results and documented limitations.
+Dependency boundaries: domain contracts do not import API, model, or storage implementations; bootstrap wires concrete dependencies. Workflow proposes decisions; tools enforce scoped reads; policy authorizes; resolution executes and verifies; repositories persist. The model cannot write SQLite, modify policies, approve its own action, or read evaluation answers.
 
-Dependency boundaries: domain contracts do not import API, model or storage implementations. Bootstrap wires concrete dependencies. Workflow proposes decisions; tools enforce scoped reads; policy authorizes; resolution executes and verifies; repositories persist. The model cannot write SQLite, modify policies, approve its own action, or read evaluation answers.
-
-`scripts/demo_data.py` is the standard-library fixture validator and isolated-run seeder. It creates keyed JSON-record source tables and initial operational tables. `Repository` adds trusted session, ownership, revision and operational storage when the run opens. The diagnostic agent creates and uses a separate LangGraph SQLite checkpoint database.
+`scripts/demo_data.py` is the standard-library fixture validator and isolated-run seeder. `Repository` adds trusted session, ownership, revision, and operational storage when the run opens. The diagnostic agent uses a separate LangGraph SQLite checkpoint database. See the [implementation plan](IMPLEMENTATION_PLAN.md) for per-stage acceptance results.

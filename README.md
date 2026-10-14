@@ -1,47 +1,20 @@
 # 面向员工的 IT 服务台智能体 / Employee-Facing IT Helpdesk Agent
 
-> 本 README 为中/英对照版本：每个段落先给出中文，随后是英文原文；代码块中的命令不做翻译。
-> This README is bilingual: each paragraph gives the Chinese version first, followed by the original English. Commands in code blocks are not translated.
+本地运行的对话式 IT 支持智能体：员工用自然语言描述问题，智能体调查后执行经授权的模拟修复、给出有文档依据的指导，或在需要人工时保留完整调查上下文进行交接。所有员工、IT 系统与数据均为合成，操作只影响本地 SQLite 数据库。
 
-本项目是一个在本地运行的对话式 IT 支持智能体，服务对象是遇到账号锁定、VPN 连接、应用权限以及跨多个系统的故障等问题的员工。员工在聊天界面中描述问题；智能体进行调查，提出经授权的修复操作或有文档依据的指导，并在需要人工 IT 介入时完整保留调查记录。
+A local conversational IT support agent. An employee describes a problem in chat; the agent investigates, performs an authorized simulated fix or documented guidance, and hands off with full investigation context when a human is needed. The model is real; all employees, IT systems, and data are synthetic, and actions touch only an isolated local SQLite database. 
 
-A local conversational IT support agent for employees who need help with account lockouts, VPN connectivity, application permissions, and incidents spanning several systems. Employees describe their problem in chat; the agent investigates, proposes an authorized fix or documented guidance, and preserves the investigation when human IT is needed.
+## 问题与选题原因 / Problem and why
 
-模型是真实的；所有员工、IT 系统、策略与流程均为合成数据。所有操作只影响一个隔离的本地数据库。本仓库是[候选人说明（candidate instructions）](agentic_ai_take_home_candidate_instructions_v20260421_01.html)对应的可运行演示。[逐条需求审计](docs/REQUIREMENTS_CHECKLIST.md)区分了"已实现"与"已验证"，并列出了遗留缺口。
+员工遇到高频 IT 问题——账号锁定、VPN 断连、应用权限、跨系统故障——往往要在工单队列里等待。主要用户是员工；经理在限定范围的访问请求需要审批时进入流程，服务台专员在智能体无法安全解决时进入流程。成功标准：常规问题以"有文档依据的修复 + 独立核验到的系统状态 + 员工明确确认"闭环；无法解决时，"成功"是一次有用且诚实的交接，不要求员工重复调查。
 
-The model is real; all employees, IT systems, policies, and procedures are synthetic. Actions affect only an isolated local database. This is the runnable demo for the [candidate instructions](agentic_ai_take_home_candidate_instructions_v20260421_01.html). The [requirement-by-requirement audit](docs/REQUIREMENTS_CHECKLIST.md) distinguishes implementation from validation and lists remaining gaps.
+Employees with frequent IT problems — account lockouts, VPN drops, application access, cross-system incidents — often wait in a ticket queue. The primary user is the employee; a manager enters when a scoped access request needs approval, and a helpdesk specialist when the agent cannot safely resolve the issue. Success means a routine issue closed with a documented fix, an independently observed system state, and explicit employee confirmation; for an unresolved issue, success is a useful, honest handoff that never asks the employee to repeat the investigation. 
 
-## 问题、用户与成功标准 / Problem, user, and success criteria
+## 为什么采用智能体方案 / Why an agentic approach
 
-主要用户是遇到 IT 问题的员工。当智能体无法安全地解决问题时，服务台专员进入流程；当一个限定范围的访问请求需要审批时，经理进入流程。重复性问题是一个合适的切入点，因为其诊断需要结合文档化流程、员工自身状态、服务健康状况与授权规则。
+同一症状（如"VPN 反复断连"）可能源于设备配置过期，也可能是区域性故障——FAQ 检索不检查当前状态就无法区分；规则引擎适合授权判断，却做不了对话式诊断；简单聊天机器人则无法调用工具核实事实。此外员工会补充新信息、工具可能失败、访问请求可能要先审批才能继续。因此由模型选择下一个诊断工具或追问、比对多源证据、随轮次调整策略；身份、策略、执行、核验与案例状态则由普通代码确定性控制。这种分工既支持灵活调查，又保证系统变更始终处于明确授权之内。
 
-The primary user is an employee with an IT problem. A helpdesk specialist enters the flow when the agent cannot safely resolve it; a manager enters when a scoped access request needs approval. Repetitive issues are a useful starting point because their diagnosis combines documented procedures with employee-specific state, service health, and authorization rules.
-
-交互模型是由 FastAPI 支撑的浏览器聊天界面。员工不需要填写工单表单：应用内部维护一份案例（case）记录，由智能体提出有针对性的问题并选择工具。授权确认与修复反馈使用显式控件。另设一个独立的审核面板，模拟经理或专员的视角。
-
-The interaction model is a browser chat backed by FastAPI. The employee does not fill out a ticket form: the application keeps an internal case record while the agent asks focused questions and selects tools. Consent and fix feedback use explicit controls. A separate reviewer panel simulates the manager or specialist's view.
-
-在等待回复期间，调查面板会实时显示执行步骤。回答使用可点击的编号来源，而不是内部证据 ID。折叠的开发者检查器展示调用元数据与证据映射；服务端将已提交的 JSON 行事件写入 stderr 和当前运行目录下的滚动日志 `app.log`。员工/开发者视图边界、轮询行为与引用处理详见[交互设计文档](docs/INTERACTION_DESIGN.md)。
-
-The investigation panel shows live execution steps while a reply is pending. Answers use clickable numbered sources instead of internal evidence IDs. A collapsed developer inspector shows call metadata and evidence mappings; the server writes committed JSON-line events to stderr and the active run's rotating `app.log`. See [interaction design](docs/INTERACTION_DESIGN.md) for the employee/developer boundary, polling behavior and citation handling.
-
-一次成功的常规交互以以下结果收尾：有文档依据的修复；若执行了操作，则需有独立观测到的模拟系统结果；以及员工的明确确认。涉及多个资源的请求会保持打开状态，直到所有已记录的资源都被处理。对于没有可执行操作的纯指导类问题，以"员工确认过的、有文档依据的指导"作为关闭依据——这属于弱于独立系统探测的证据。
-
-A successful routine interaction ends with a documented fix, an independently observed simulated system outcome where an action ran, and explicit employee confirmation. A request involving several resources stays open until all recorded resources are covered. For guidance without an executable action, closure uses employee-confirmed documented guidance; this is weaker evidence than an independent system probe.
-
-产品目标是在两分钟内完成常规问题的解决，无需在初始工单队列中等待。已记录的合成试验展示了在该时间内完成的示例；这些试验不包含真实员工的响应时间，也不能确立 SLA，或证明生产环境中多数问题都可被解决。对于无法解决的问题，"成功"意味着一次有用且诚实的交接，且不要求员工重复调查过程。
-
-The product target is a routine resolution within two minutes without waiting in an initial ticket queue. Recorded synthetic trials demonstrate examples within that time; they exclude real employee response time and do not establish an SLA or that a majority of production issues can be resolved. For an unresolved issue, success means a useful, honest handoff without asking the employee to repeat the investigation.
-
-## 为什么采用智能体（Agentic）方案 / Why an agentic approach
-
-例如"VPN 反复断连"这一症状，可能源于设备配置文件过期，也可能源于区域性故障。不检查当前状态，FAQ 检索无法判断属于哪种情况。员工可能补充新信息，工具可能失败，访问请求可能需要先审批才能继续处理。
-
-A symptom such as repeated VPN disconnections can come from a stale device profile or a regional outage. A FAQ lookup cannot decide which applies without checking current state. An employee may add new information, a tool may fail, and an access request may need approval before work can continue.
-
-由模型选择下一个诊断工具或问题、比对来自多个来源的证据，并在多轮对话中调整交流策略。身份、策略、执行、校验与案例状态则由普通代码控制。规则引擎适合授权判断，但无法替代对话式诊断。这种分工既支持灵活调查，又保证系统变更始终处于明确授权之内。
-
-The model chooses the next diagnostic tool or question, compares evidence from several sources, and adjusts the conversation across turns. Ordinary code controls identity, policy, execution, verification, and case state. A rule engine suits authorization; it does not replace conversational diagnosis. This division supports flexible investigation while keeping system changes within explicit authority.
+The same symptom ("VPN keeps disconnecting") can come from a stale device profile or a regional outage — FAQ search cannot tell which applies without checking current state; a rule engine suits authorization but not conversational diagnosis; a plain chatbot cannot call tools to verify facts. Employees also add information mid-conversation, tools fail, and access requests may need approval before work continues. So the model chooses the next diagnostic tool or question, compares evidence across sources, and adapts over turns, while ordinary code deterministically controls identity, policy, execution, verification, and case state. This division supports flexible investigation while keeping system changes within explicit authority.
 
 ## 架构与设计决策 / Architecture and design decisions
 
@@ -65,194 +38,127 @@ flowchart TD
 
 | 组件 Component | 职责与决策 Responsibility and decision |
 |---|---|
-| `workflow/`, `models/` | 单个 LangGraph 诊断智能体交替执行模型步骤与工具步骤。服务商适配器使用 OpenAI 兼容的 SDK 接口，不要求模型托管在 OpenAI。在本范围内，单一智能体使职责归属清晰。<br>One LangGraph diagnostic agent alternates model and tool steps. The provider adapter uses an OpenAI-compatible SDK interface; it does not require an OpenAI-hosted model. One agent keeps ownership clear for this scope. |
-| `tools/`, `adapters/`, `knowledge/` | 七个经过校验的读取工具返回事实、来源 ID、时间戳，以及明确的 成功/缺失/拒绝/错误 结果。词法检索对小型语料库而言便于检查且足够使用。<br>Seven validated read tools return facts, source IDs, timestamps, and explicit success/missing/denied/error outcomes. Lexical retrieval is inspectable and sufficient for the small corpus. |
-| `policy/` | 默认拒绝的规则从可信的后端事实推导权限。模型无法通过操作参数设置身份、授权确认或审批结果。<br>Default-deny rules derive authority from trusted backend facts. The model cannot set identity, consent, or approval through action parameters. |
-| `resolution/` | 执行时在事务内重新校验授权，记录幂等的执行效果，并在员工确认可关闭案例之前核验当前状态。<br>Execution rechecks authorization inside a transaction, records idempotent effects, and verifies current state before employee confirmation can close the case. |
-| `escalation/` | 交接包持久化员工的问题与后续补充、证据、已尝试的修复、错误、案例中记录的不确定性，以及下一步建议。专员可以签收队列中的案例。<br>Handoff packages persist the employee's issue and updates, evidence, attempted fixes, errors, uncertainty recorded in the case, and a next step. Specialists can acknowledge a queued case. |
-| `domain/`, `storage/`, `bootstrap/` | Pydantic 契约、归属明确的会话/案例、乐观版本控制、配置，以及固定的演示时钟。SQLite 避免了额外的数据库服务。<br>Pydantic contracts, owned sessions/cases, optimistic revisions, configuration, and a fixed demo clock. SQLite avoids a separate database service. |
-| `observability/`, `evaluation/` | 审计事件、脱敏的元数据追踪、用量/时延统计、隔离的实时对话试验，以及基于已存储结果的评分。<br>Audit events, redacted metadata traces, usage/latency, isolated live conversation trials, and scoring based on stored outcomes. |
+| `workflow/`, `models/` | 单一 LangGraph 诊断循环交替模型/工具步骤。此规模下单一智能体职责最清晰。<br>One LangGraph diagnostic loop alternates model and tool step. One agent keeps ownership clear at this scope. |
+| `tools/`, `adapters/`, `knowledge/` | 七个类型化读取工具返回事实、来源 ID、时间戳与显式 成功/缺失/拒绝/错误；小型语料用词法检索，可检查且够用（检索为纯关键词检索，没有加模糊检索）。<br>Seven typed read tools return facts, source IDs, timestamps, and explicit success/missing/denied/error outcomes; lexical retrieval is inspectable and sufficient for the small corpus. |
+| `policy/` | 默认拒绝的确定性规则从可信后端事实推导权限；模型无法通过参数伪造身份、授权确认或审批。<br>Default-deny deterministic rules derive authority from trusted backend facts; the model cannot forge identity, consent, or approval through parameters. |
+| `resolution/` | 事务内重校验授权、幂等执行、员工确认关闭前独立核验当前状态。<br>Execution rechecks authorization inside a transaction, records idempotent effects, and verifies current state before employee confirmation can close the case. |
+| `escalation/` | 交接包持久化问题与补充、证据、已尝试修复、错误、未决问题与下一步建议；专员可签收队列案例。<br>Handoff packages persist the issue and updates, evidence, attempted fixes, errors, open questions, and a next step; specialists can acknowledge a queued case. |
+| `domain/`, `storage/` | Pydantic 契约；SQLite 业务库与 LangGraph 检查点库分离，无需额外数据库服务。<br>Pydantic contracts; separate SQLite databases for business records and LangGraph checkpoints, so no extra database service is needed. |
 
-业务记录与 LangGraph 检查点使用独立的数据库。持久化的提案回执与操作幂等性可以在不重放变更的情况下，对中断的工具交互进行对账。本地进程串行化智能体的各轮次；分布式执行不在当前设计范围内。
+核心取舍：模型负责调查与表达，代码负责权限与副作用；读取先持久化为证据再返回；写入只通过执行器修改本次运行的 SQLite；持久化的提案回执与幂等键可在不重放变更的情况下对账中断的工具调用。详见[详细架构](IT_HELPDESK_ARCHITECTURE.md)与[仓库结构](docs/REPOSITORY_STRUCTURE.md)。
 
-Business records and LangGraph checkpoints use separate databases. Durable proposal receipts and action idempotency reconcile interrupted tool exchanges without replaying mutations. The local process serializes agent turns; distributed execution is outside the current design.
-
-详见[详细架构与方案对比](IT_HELPDESK_ARCHITECTURE.md)、[仓库结构](docs/REPOSITORY_STRUCTURE.md)与[实现计划](docs/IMPLEMENTATION_PLAN.md)。
-
-See the [detailed architecture and project comparisons](IT_HELPDESK_ARCHITECTURE.md), [repository structure](docs/REPOSITORY_STRUCTURE.md), and [implementation plan](docs/IMPLEMENTATION_PLAN.md).
+Core tradeoff: the model investigates and explains while code owns authority and side effects; reads persist as evidence before being returned; writes change only the run's SQLite through the executor; durable proposal receipts and idempotency keys reconcile interrupted tool calls without replaying mutations. See the [detailed architecture](IT_HELPDESK_ARCHITECTURE.md) and [repository structure](docs/REPOSITORY_STRUCTURE.md).
 
 ## 解决与升级的边界 / Resolution and escalation boundary
 
-| 问题 Issue | 智能体的权限 Agent's authority | 人工边界 Human boundary |
+| 问题 Issue | 智能体权限 Agent's authority | 人工边界 Human boundary |
 |---|---|---|
-| 锁定的 Okta 账号<br>Locked Okta account | 在具备适用证据、可信会话身份、策略授权与员工明确确认的前提下，解锁员工的模拟账号。核验账号状态并请员工确认能否登录。<br>Unlock the employee's simulated account with applicable evidence, trusted session identity, policy authorization, and explicit consent. Verify account state and request login confirmation. | 身份/MFA 恢复、安全疑虑、不支持的账号问题，或修复无效。<br>Identity/MFA recovery, security concerns, unsupported account problems, or an ineffective fix. |
-| 过期的 VPN 配置文件<br>Stale VPN profile | 在获得确认并完成当前故障排查后，刷新指定受管设备的模拟配置文件。核验设备/配置文件状态并请员工反馈稳定性。<br>Refresh the assigned managed device's simulated profile after consent and a current outage check. Verify device/profile state and request stability feedback. | 存在适用的区域性故障、证据冲突、缺少诊断信息，或问题持续存在。<br>Applicable regional outage, conflicting evidence, missing diagnostics, or persistent failure. |
-| 内部 Grafana 访问<br>Internal Grafana access | 在获得确认并通过策略检查后，为数据工程团队的员工授予模拟的内部查看者权限。<br>Grant a Data Engineering employee simulated internal viewer access after consent and policy checks. | 不支持的角色、部门或范围。<br>Unsupported role, department, or scope. |
-| Snowflake 生产库访问<br>Snowflake production access | 准备附带业务理由的只读权限提案；等待员工在通讯录中的直属经理在限定范围内审批通过后，再执行并核验。<br>Prepare a reader-access proposal with business justification; wait for the employee's directory manager's scoped approval before executing and verifying. | 审批被拒绝/过期、写入权限或其他被拒绝的范围。审批与专员升级是两条不同的路径。<br>Rejected/expired approval, writer access, or other denied scope. Approval is distinct from specialist escalation. |
-| Salesforce 变慢<br>Salesforce slowness | 查询服务健康状况，检索其操作手册与相关历史记录，并提供有依据的指导或转交人工。<br>Query health, retrieve its runbook and relevant history, and offer supported guidance or handoff. | 大范围/持续性的服务问题。专门的变慢场景与实时评估尚待补充。<br>Widespread/persistent service problems. A dedicated slowdown scenario and live evaluation are still missing. |
-| Jenkins/Snowflake/Tableau 故障<br>Jenkins/Snowflake/Tableau incident | 收集维护窗口、构建、服务健康与下游报表证据；区分"假设"与"已确认的原因"。<br>Collect maintenance, build, service-health and downstream-report evidence; distinguish a hypothesis from a confirmed cause. | 生产网络/凭据修复转交 SRE。系统没有生产环境修复类执行工具。<br>Production network/credential repair goes to SRE. There is no production-repair execution tool. |
+| 锁定的 Okta 账号<br>Locked Okta account | 具备证据、可信会话身份、策略授权与员工明确确认后解锁模拟账号；核验状态并请员工确认登录。<br>Unlock the simulated account with evidence, trusted session identity, policy authorization, and explicit consent; verify state and request login confirmation. | 身份/MFA 恢复、安全疑虑、修复无效。<br>Identity/MFA recovery, security concerns, ineffective fix. |
+| 过期的 VPN 配置文件<br>Stale VPN profile | 确认并完成当前故障排查后刷新指定受管设备的模拟配置文件；核验并请员工反馈。<br>Refresh the assigned managed device's simulated profile after consent and a current outage check; verify and request feedback. | 存在适用的区域故障、证据冲突、问题持续。<br>Applicable regional outage, conflicting evidence, persistent failure. |
+| 内部 Grafana 访问<br>Internal Grafana access | 通过策略检查后，为数据工程员工授予模拟内部查看者权限。<br>Grant a Data Engineering employee simulated internal viewer access after policy checks. | 不支持的角色、部门或范围。<br>Unsupported role, department, or scope. |
+| Snowflake 生产库访问<br>Snowflake production access | 准备只读权限提案；等待通讯录中直属经理的限定范围审批后再执行并核验。<br>Prepare a reader-access proposal; wait for the directory manager's scoped approval before executing and verifying. | 审批被拒/过期、写权限等被拒范围。审批与专员升级是两条不同路径。<br>Rejected/expired approval or denied scope. Approval is distinct from specialist escalation. |
+| Salesforce 变慢<br>Salesforce slowness | 查服务健康、检索操作手册与历史，提供有依据的指导或转交。<br>Query health, retrieve the runbook and history, offer supported guidance or handoff. | 大范围/持续服务问题。专属场景与实时评估尚待补充。<br>Widespread/persistent problems. A dedicated scenario and live evaluation are still missing. |
+| Jenkins/Snowflake/Tableau 故障<br>Jenkins/Snowflake/Tableau incident | 收集维护、构建、服务健康与下游报表证据；区分"假设"与"已确认原因"。<br>Collect maintenance, build, health, and downstream-report evidence; distinguish hypothesis from confirmed cause. | 生产网络/凭据修复转交 SRE；系统没有生产修复类工具。<br>Production network/credential repair goes to SRE; there is no production-repair tool. |
 
-当操作不受支持或缺少必要证据时，后端以"拒绝"为默认行为（fail closed）。调查预算耗尽、重复无效的调用、工具/模型故障或证据不足，同样会触发交接。系统没有任意 shell 或设备命令类工具。
+默认 fail closed：操作不受支持或缺少必要证据时后端拒绝；预算耗尽、重复无效调用、工具/模型故障或证据不足同样触发交接。交接包含初始问题、员工补充、证据及来源时间、已尝试修复、错误、未决问题与升级原因，按上下文路由到 IT 服务台、网络、SRE 或安全团队。`queued` 与 `acknowledged` 是两个不同状态，都不代表问题已修复。
 
-The backend fails closed when an action is unsupported or lacks required evidence. Investigation budgets, repeated unproductive calls, tool/model failures, or insufficient evidence can also produce a handoff. There is no arbitrary shell or device-command tool.
+The backend fails closed when an action is unsupported or lacks required evidence; exhausted budgets, repeated unproductive calls, tool/model failures, or insufficient evidence also produce a handoff. A handoff includes the initial problem, employee updates, evidence and source times, attempted fixes, errors, open questions, and the escalation reason, routed to IT helpdesk, network, SRE, or security by case context. `queued` and `acknowledged` are distinct states; neither means the problem is repaired.
 
-一次交接包含：初始问题、员工后续补充、已有事实/影响、证据及来源时间、已尝试的修复、错误、记录的未决问题，以及升级原因。路由根据案例上下文选择 IT 服务台、网络、SRE 或安全团队。`queued`（已排队）与 `acknowledged`（已签收）是两个不同的状态；两者都不代表员工的问题已被修复。
+## 模拟数据源及原因 / Simulated data sources and why
 
-A handoff includes the initial problem, subsequent employee updates, available facts/impact, evidence and source times, attempted fixes, errors, recorded unresolved questions, and the reason for escalation. Routing selects IT helpdesk, network, SRE, or security from the case context. `queued` and `acknowledged` are distinct states; neither is a claim that the employee's problem was repaired.
+覆盖说明建议的全部五类数据源，另加诊断快照；员工身份与故障条件独立建模（同类问题可发生在多名员工身上，一人也可同时遇到多种问题），基础数据保持健康，由场景模板注入可复现的故障。
 
-## 模拟数据与智能体输入输出 / Simulated data and agent I/O
+All five suggested source categories are covered, plus diagnostic snapshots. Identities and fault conditions are modeled independently (the same problem can hit several employees, and one employee can have several problems); healthy fixtures receive reproducible scenario conditions.
 
-说明中建议的全部五类数据源都已覆盖，另以诊断快照补充账号、设备和共享资源观测。员工身份与故障条件独立：同类问题可发生在多名员工身上，同一员工也可同时遇到多种问题。基础数据保持健康，由场景模板注入可复现的故障。
-
-All five suggested source categories are represented, with diagnostic snapshots for accounts, devices and shared resources. Identities and fault conditions are independent: multiple employees can have the same problem, and one employee can have several problems. Healthy fixtures receive reproducible scenario conditions.
-
-| 数据源 Source | 本地形式 Local form | 智能体的用途与原因 Agent use and reason |
+| 数据源 Source | 本地形式 Local form | 用途与原因 Agent use and reason |
 |---|---|---|
-| 知识库<br>Knowledge base | `data/knowledge/` 下 14 篇带索引的 Markdown 文章<br>14 indexed Markdown articles in `data/knowledge/` | `search_knowledge` 与 `get_runbook` 获取适用的流程与升级边界。<br>`search_knowledge` and `get_runbook` obtain applicable procedures and escalation boundaries. |
-| 系统状态与变更<br>System status and changes | 覆盖七个服务的 JSON 夹具数据，含故障与变更窗口，灌入 SQLite<br>JSON fixtures for seven services, incidents, and change windows, seeded into SQLite | `get_service_status` 与 `get_recent_changes` 区分设备问题与服务中断，并将维护活动与症状关联。<br>`get_service_status` and `get_recent_changes` distinguish device issues from outages and correlate maintenance with symptoms. |
-| 用户目录<br>User directory | 八名员工及其分配的设备、账号状态、资源与访问授权<br>Eight employees and assigned devices, account states, resources, and access grants | `get_employee_context` 使用与会话绑定的身份；员工所属范围与部门影响诊断和权限。<br>`get_employee_context` uses session-bound identity; employee scope and department affect diagnosis and permissions. |
-| 解决历史<br>Resolution history | 九条合成的历史解决记录<br>Nine synthetic past resolutions | `search_resolution_history` 检索可类比的案例。相似性只能提示假设，不能证明当前问题的原因。<br>`search_resolution_history` retrieves comparable cases. Similarity suggests hypotheses, not proof of the current cause. |
-| 策略/规则<br>Policy/rules | `data/policies/action_rules.json` 中七条精确匹配规则<br>Seven exact-match rules in `data/policies/action_rules.json` | 由后端评估决定 允许/需审批/拒绝；模型不能修改规则。<br>Backend evaluation determines allow, approval-required, or deny; the model cannot edit rules. |
-| 诊断数据<br>Diagnostics | 账号、设备、Jenkins 构建与 Tableau 刷新快照<br>Account, device, Jenkins build, and Tableau refresh snapshots | `get_diagnostic_snapshot` 提供当前观测，用于印证或反驳状态与历史记录。<br>`get_diagnostic_snapshot` provides current observations to corroborate or contradict status and history. |
+| 知识库 Knowledge base | `data/knowledge/` 14 篇带索引的 Markdown<br>14 indexed Markdown articles | `search_knowledge` / `get_runbook` 获取适用流程与升级边界。<br>Obtain applicable procedures and escalation boundaries. |
+| 系统状态与变更 System status and changes | 七个服务的 JSON 夹具（故障、变更窗口）灌入 SQLite<br>JSON fixtures for seven services seeded into SQLite | `get_service_status` / `get_recent_changes` 区分设备问题与服务中断，关联维护与症状。<br>Distinguish device issues from outages; correlate maintenance with symptoms. |
+| 用户目录 User directory | 八名员工及其设备、账号状态、资源与授权<br>Eight employees with devices, account states, resources, grants | `get_employee_context` 使用会话绑定身份；部门与范围影响诊断和权限。<br>Session-bound identity; department and scope affect diagnosis and permissions. |
+| 解决历史 Resolution history | 九条合成的历史解决记录<br>Nine synthetic past resolutions | `search_resolution_history` 检索可类比案例；相似性只提示假设，不证明当前原因。<br>Comparable cases suggest hypotheses, not proof of the current cause. |
+| 策略/规则 Policy/rules | `data/policies/action_rules.json` 七条精确匹配规则<br>Seven exact-match rules | 后端评估 允许/需审批/拒绝；模型不能修改规则。<br>Backend evaluation decides allow/approval-required/deny; the model cannot edit rules. |
+| 诊断数据 Diagnostics | 账号、设备、Jenkins 构建与 Tableau 刷新快照<br>Account, device, Jenkins build, Tableau refresh snapshots | `get_diagnostic_snapshot` 提供当前观测，印证或反驳状态与历史。<br>Current observations to corroborate or contradict status and history. |
 
-智能体通过类型化工具访问这些数据，而不是直接访问文件/数据库。读取在返回前先持久化为证据。经授权的写入只通过执行器修改本次运行的 SQLite 记录。场景覆盖与故障注入由操作者设置；预期结果与评估场景标签不会出现在有特权的模型指令中。详见[数据说明](data/README.md)。
+智能体通过类型化工具访问数据，不直接读写文件/数据库；场景覆盖与故障注入由操作者设置，预期结果与场景标签不会出现在模型指令中。详见[数据说明](data/README.md)。
 
-The agent accesses these through typed tools, not direct file/database access. Reads persist evidence before returning it. Authorized writes change only the run's SQLite records through the executor. Scenario overrides and fault settings are applied by the operator; expected outcomes and evaluation scenario labels are excluded from privileged model instructions. See the [data guide](data/README.md).
+The agent accesses data through typed tools, never directly through files or the database; scenario overrides and faults are set by the operator, and expected outcomes or scenario labels never appear in model instructions. See the [data guide](data/README.md).
 
-## 安装与本地运行 / Setup and local run
+## 如何运行 / How to run
 
-请在仓库根目录的 PowerShell 中运行命令。**Python 3.13 是经过测试的运行时**（本地为 3.13.5）；项目元数据允许 Python 3.11+，但其他版本未经验证。真实对话需要一个支持工具调用的 chat-completions 端点以及到该服务商的网络连接。夹具数据校验与确定性测试不需要模型凭据，也不需要外部 IT 系统。
+在仓库根目录的 PowerShell 中运行。**Python 3.13 是经过测试的运行时**。真实对话需要一个支持工具调用的 chat-completions 端点；测试与数据校验不需要模型凭据。
 
-Run commands from the repository root in PowerShell. **Python 3.13 is the tested runtime** (3.13.5 locally); project metadata permits Python 3.11+, but other versions have not been verified. A tool-capable chat-completions endpoint and network access to that provider are needed for real conversations. Fixture validation and deterministic tests need no model credentials or external IT systems.
-
-对于全新环境，请创建虚拟环境并安装锁定文件中的依赖版本。如果项目中的 `.venv` 已存在，可跳过创建步骤。
-
-For a fresh environment, create a virtual environment and install the captured dependency versions. Skip creation if the project's `.venv` already exists.
+Run from the repository root in PowerShell. **Python 3.13 is the tested runtime**. Real conversations need a tool-capable chat-completions endpoint; tests and data validation need no model credentials.
 
 ```powershell
-python -m venv .venv
+python -m venv .venv          # 若 .venv 已存在可跳过 / skip if .venv exists
 .\.venv\Scripts\python.exe -m pip install -r requirements.lock
 .\.venv\Scripts\python.exe -m pip install -e . --no-deps
 .\.venv\Scripts\python.exe -m pip check
-```
 
-直接依赖为 Pydantic、LangGraph 及其 SQLite 检查点、OpenAI 兼容 SDK 适配器、python-dotenv、FastAPI 和 Uvicorn。pytest 与 HTTPX 用于测试。`pyproject.toml` 声明上述依赖；`requirements.lock` 记录了经测试的环境（含传递依赖）。不需要向量数据库、Docker、前端构建流程或企业账号。锁定版本在全新机器上的安装过程尚未验证。
+# 仅当 .env 不存在时创建，然后本地编辑三个占位符（BASE_URL / API_KEY / MODEL_NAME）
+# Create .env only if missing, then edit the three placeholders locally
+if (-not (Test-Path -LiteralPath '.env')) { Copy-Item '.env.example' '.env' }
 
-Direct dependencies are Pydantic, LangGraph and its SQLite checkpointer, the OpenAI-compatible SDK adapter, python-dotenv, FastAPI, and Uvicorn. pytest and HTTPX support tests. `pyproject.toml` declares these; `requirements.lock` captures the tested environment, including transitive dependencies. No vector database, Docker, frontend build process, or enterprise account is required. A clean-machine installation of the captured versions remains unverified.
-
-仅当 `.env` 不存在时，才从模板创建它，然后在本地编辑占位符：
-
-Create `.env` from the template only if it does not already exist, then edit the placeholders locally:
-
-```powershell
-if (-not (Test-Path -LiteralPath '.env')) {
-    Copy-Item -LiteralPath '.env.example' -Destination '.env'
-}
-```
-
-```dotenv
-HELPDESK_MODEL_BASE_URL=https://your-provider.example/v1
-HELPDESK_MODEL_API_KEY=replace-locally
-HELPDESK_MODEL_NAME=your-tool-capable-model
-```
-
-环境变量优先于 `.env`。当前默认值为：每次模型请求 60 秒超时、每轮员工对话最多 8 次模型调用、16 次工具调用、48,000 字符的上下文；每次回复的适配器上限为 1,800 输出 token。这些是调查上限，不是端到端时延保证。可选配置见 [.env.example](.env.example)。凭据不会出现在模型提示词或 API 输出中；`.env` 与生成的 `var/` 文件已被 Git 忽略。
-
-Environment variables override `.env`. The current defaults are a 60-second timeout per model request, eight model calls, 16 tool calls, and 48,000 context characters per employee turn; each response has an adapter limit of 1,800 output tokens. These are investigation limits, not an end-to-end latency guarantee. Optional settings are in [.env.example](.env.example). Credentials are kept out of model prompts and API output; `.env` and generated `var/` files are ignored by Git.
-
-校验夹具数据、创建独立的多人多问题运行、检查模型兼容性，然后启动服务器：
-
-Validate the fixtures, create an independent mixed-issue run, check model compatibility, and start the server:
-
-```powershell
 .\.venv\Scripts\python.exe scripts/demo_data.py validate
-$demoRunId = 'interview-' + (Get-Date -Format 'yyyyMMdd-HHmmss')
+$demoRunId = 'demo-' + (Get-Date -Format 'yyyyMMdd-HHmmss')
 .\.venv\Scripts\python.exe scripts/demo_data.py seed --scenario mixed_issues --random-seed 42 --run-id $demoRunId
 $env:HELPDESK_RUN_DIR = "var/runs/$demoRunId"
 .\.venv\Scripts\python.exe scripts/check_model.py
 .\.venv\Scripts\python.exe -m uvicorn helpdesk.api.main:app --host 127.0.0.1 --port 8000 --no-access-log
 ```
 
-打开[本地聊天界面](http://127.0.0.1:8000)。根据 seed 输出选择员工：混合场景中四人的账号锁定、五人的 VPN 配置过期，两组可重叠。员工仍可独立申请应用权限；数据工程员工能查看共享的 Jenkins/Tableau 故障。也可用 `--employees EMP-001,EMP-004` 将个人故障注入给指定员工。经理审批使用请求人的实际直属经理；EMP-007 为 IT 专员，EMP-008 处理安全交接。选择器用于模拟身份与角色，并非生产级认证。
+打开 <http://127.0.0.1:8000>。seed 输出会列出哪些员工有锁定账号或过期 VPN 配置（两组可重叠）；应用权限申请相互独立；数据工程员工可查看共享的 Jenkins/Tableau 故障；经理审批使用请求人的真实直属经理；EMP-007 为 IT 专员、EMP-008 处理安全交接。身份选择器只是演示模拟，不是生产认证。演示时钟固定为 `2026-10-12T10:00:00+08:00`。切换场景：停服务器、灌新运行、改 `HELPDESK_RUN_DIR`、重启。可选配置见 [.env.example](.env.example)；默认每轮最多 8 次模型调用、16 次工具调用。场景提示与观察要点见[演示指南](docs/DEMO_GUIDE.md)。
 
-Open [the local chat](http://127.0.0.1:8000). Seed output lists four employees with locked accounts and five with stale VPN profiles; the groups overlap. Application requests are independent, and Data Engineering employees can inspect the shared Jenkins/Tableau incident. Use `--employees EMP-001,EMP-004` to target personal conditions explicitly. Approvals use the requester's actual manager; EMP-007 is an IT specialist and EMP-008 handles security handoffs. Selectors simulate identity and roles, not production authentication. `baseline` is now a healthy control; use `account_lockout` for a targeted lockout demo. New data requires a fresh run; existing databases retain their old state.
+Open <http://127.0.0.1:8000>. The seed output lists which employees have locked accounts or stale VPN profiles (the groups overlap); access requests are independent; Data Engineering employees can inspect the shared Jenkins/Tableau incident; approvals go to the requester's actual directory manager; EMP-007 is an IT specialist and EMP-008 handles security handoffs. The identity selector is demo simulation, not production authentication. The demo clock is fixed at `2026-10-12T10:00:00+08:00`. To switch scenarios: stop the server, seed a fresh run, point `HELPDESK_RUN_DIR` at it, restart. Optional settings are in [.env.example](.env.example); defaults bound each turn to 8 model calls and 16 tool calls. See the [demo guide](docs/DEMO_GUIDE.md) for scenario prompts and what to observe.
 
-演示时钟固定为 `2026-10-12T10:00:00+08:00`。API 要求回环（loopback）客户端与同源请求。切换场景时：停止服务器、灌入一个新的命名运行、将 `HELPDESK_RUN_DIR` 指向它，然后重启。灌入数据时若数据库文件已存在会被拒绝。如果模型探测失败，请检查端点/模型的 function-calling 支持与本地配置；诊断失败不会泄露凭据。
-
-The demo clock is fixed at `2026-10-12T10:00:00+08:00`. The API requires loopback clients and the same origin. To switch scenarios, stop the server, seed a fresh named run, set `HELPDESK_RUN_DIR` to it, and restart. Seeding refuses existing database files. If the model probe fails, check the endpoint/model's function-calling support and local configuration; diagnostic failures do not expose credentials.
-
-## 评估：方法、结果与失败案例 / Evaluation: method, results, and failure cases
+## 如何评估 / Evaluation
 
 ```powershell
-# 确定性测试：独立数据库与脚本化模型，不调用真实模型服务商。
-# Deterministic tests: isolated databases and scripted models; no provider calls.
-.\.venv\Scripts\python.exe -m pytest -q
-
-# 预览七类问题 × 两名员工的 14 个用例，不调用模型。
-.\.venv\Scripts\python.exe scripts/run_evaluation.py --list
-# 实时对话评估：运行上述矩阵，会消耗服务商 token。
-# Live conversation evaluation: 14 trials across seven problem types and multiple employees.
-.\.venv\Scripts\python.exe scripts/run_evaluation.py
-
-# 仅对跨系统故障场景做有边界的复测。
-# A bounded retest of the cross-system incident only.
-.\.venv\Scripts\python.exe scripts/run_evaluation.py --scenarios pipeline_maintenance --employees EMP-001 --max-turns 5
+.\.venv\Scripts\python.exe -m pytest -q                 # 确定性测试 / deterministic tests
+.\.venv\Scripts\python.exe scripts/run_evaluation.py --list   # 预览 7 类问题 × 2 员工 = 14 用例 / preview the matrix
+.\.venv\Scripts\python.exe scripts/run_evaluation.py          # 实时评估，消耗服务商 token / live run, spends provider tokens
 ```
 
-确定性测试套件覆盖：身份隔离、来源追溯、缺失/冲突的观测、超时、状态/重启连续性、策略优先级、限定范围审批、事务幂等性、核验、交接上下文与 API 边界。2026-10-12 的需求审计中 **56 个测试通过**；数据校验与 `pip check` 在当前环境中也通过。
+**确定性测试**使用脚本化模型与隔离数据库，覆盖身份隔离、来源追溯、策略优先级、限定范围审批、事务幂等、核验、交接上下文与 API 边界：2026-10-14 **121 个测试全部通过**。**实时评估**用真实模型、独立灌入的数据库与模拟的员工/经理反馈；评分检查持久化的证据、执行效果、核验与交接记录，而不是接受助手自称的"成功"。
 
-The deterministic suite covers identity isolation, provenance, missing/conflicting observations, timeouts, state/restart continuity, policy precedence, scoped approvals, transactional idempotency, verification, handoff context, and API boundaries. **56 tests passed** in the requirement audit on 2026-10-12; data validation and `pip check` also passed in the current environment.
+**Deterministic tests** use scripted models and isolated databases, covering identity isolation, provenance, policy precedence, scoped approvals, transactional idempotency, verification, handoff context, and API boundaries: **121 passed on 2026-10-14**. **Live evaluations** use the real model, independently seeded databases, and simulated employee/manager feedback; scoring examines persisted evidence, effects, verification, and handoff records rather than the assistant's own claim of success.
 
-实时评估使用模型实际选择的工具调用和独立灌入的数据库，配合模拟的员工反馈与经理决策。评分检查持久化的证据、执行效果、核验与交接记录，而不是接受助手自称的"成功"。
+2026-10-14 新版 14 用例实时矩阵已运行：**14 中 13 通过**（含两个账号解锁用例；1 个证据冲突用例轮次用尽时仍等待员工输入，未通过交接检查，失败已保留在报告中）。下表是上一版夹具各场景最近一次试验的历史结果（报告文件本地已不保留，非一次基准测试，也不代表生产成功率）：
 
-Live evaluations use actual model-selected tool calls and independent seeded databases, with simulated employee feedback and manager decisions. Scoring examines persisted evidence, effects, verification, and handoff records instead of accepting an assistant's claim of success. The saved trials below used the previous fixture version; they do not validate the new multi-employee matrix.
+The version-2 14-case live matrix ran on 2026-10-14: **13 of 14 passed** (including both account-unlock cases; one conflicting-evidence case ended awaiting employee input and failed its handoff check — retained in the report). The table below is version-1 history: the most recent saved trial per scenario (report files no longer kept locally; separate runs, not one benchmark, not a production success rate):
 
-| 场景 Scenario | 最近一次已保存的试验 Most recent saved trial | 秒数 Seconds | 说明 Qualification |
-|---|---|---:|---|
-| 账号解锁<br>Account unlock | 失败；已升级<br>Failed; escalated | 22.67 | 工具调用前服务商不可用；较早的一次试验曾成功解决。<br>Provider unavailable before tools; an earlier trial resolved successfully. |
-| VPN 配置文件过期<br>Stale VPN profile | 通过；已解决<br>Passed; resolved | 32.33 | 完成模拟配置文件刷新、核验与员工确认。<br>Simulated profile refresh, verification, and confirmation. |
-| 区域性 VPN 故障<br>Regional VPN outage | 通过；已升级<br>Passed; escalated | 89.20 | 带上下文的交接；无系统变更。<br>Contextual handoff; no system mutation. |
-| Snowflake/Grafana 访问<br>Snowflake/Grafana access | 通过；已解决<br>Passed; resolved | 58.08 | 两个资源均已覆盖；生产权限审批已记录。<br>Both resources covered; production approval recorded. |
-| 维护后的数据管道<br>Pipeline after maintenance | 通过；已升级<br>Passed; escalated | 31.46 | 收集了变更、Jenkins 构建与 Tableau 证据；已排队转交 SRE。<br>Change, Jenkins build and Tableau evidence; queued for SRE. |
-| VPN 证据冲突<br>Conflicting VPN evidence | 结果检查通过；已升级<br>Passed outcome checks; escalated | 61.27 | 部分证据已保留；后续模型失败触发降级。<br>Partial evidence preserved; later model failure caused fallback. |
-| 工具超时<br>Tool timeout | 结果检查通过；已升级<br>Passed outcome checks; escalated | 59.65 | 工具错误已保留；后续模型失败触发降级。<br>Tool errors preserved; later model failure caused fallback. |
+| 场景 Scenario | 结果 Result | 秒数 Seconds |
+|---|---|---:|
+| 账号解锁 Account unlock | 失败；服务商在工具调用前不可用（更早一次试验曾成功解决）<br>Failed: provider unavailable before tools (an earlier trial resolved) | 22.67 |
+| VPN 配置过期 Stale VPN profile | 通过；模拟刷新 + 核验 + 员工确认<br>Passed: simulated refresh, verification, confirmation | 32.33 |
+| 区域 VPN 故障 Regional VPN outage | 通过；带上下文交接，无系统变更<br>Passed: contextual handoff, no mutation | 89.20 |
+| Snowflake/Grafana 访问 Access | 通过；两个资源均覆盖，生产权限审批已记录<br>Passed: both resources covered, PROD approval recorded | 58.08 |
+| 维护后管道故障 Pipeline after maintenance | 通过；变更/构建/报表证据齐全，转交 SRE<br>Passed: change/build/report evidence, SRE handoff | 31.46 |
+| VPN 证据冲突 Conflicting evidence | 结果检查通过；后续模型失败触发降级交接<br>Outcome checks passed; later model failure caused fallback | 61.27 |
+| 工具超时 Tool timeout | 结果检查通过；工具错误保留在交接中<br>Outcome checks passed; tool errors preserved in handoff | 59.65 |
 
-以上是来自不同运行的最新已保存试验，并非同一次基准测试的结果，也不代表生产成功率。管道场景复测使用了 3 次模型调用和 13 次工具调用，消耗 19,957 输入 token 和 1,300 输出 token。早期过宽的操作 schema 曾导致资源/参数选择错误；更严格的工具 schema 修复了这些契约性失败，同时后端策略持续拒绝非法操作。服务商超时与不可用响应仍是一个独立的失败模式。
+失败案例：早期过宽的操作 schema 导致资源/参数选错——收紧 schema 修复了这类契约性失败，后端策略则始终拒绝非法操作；服务商超时与不可用仍是独立的失败模式。管道场景复测消耗 3 次模型调用、13 次工具调用、19,957 输入 / 1,300 输出 token。详见[评估方法、结果与局限](docs/EVALUATION.md)。
 
-These are the latest saved trials from separate runs, not one benchmark or a production success rate. The pipeline retest used three model calls and 13 tool calls, consuming 19,957 input and 1,300 output tokens. Initial broad action schemas caused wrong resource/parameter choices; stricter tool schemas fixed those contract failures while backend policy continued to reject invalid actions. Provider timeouts and unavailable responses remain a separate failure mode.
-
-生成的原始报告是 `var/evaluation/` 下的本地文件；案例证据/审计事件与对话检查点位于各 `var/runs/eval-*` 目录中。这些文件已被 Git 忽略。提交的长期性总结为 [EVALUATION.md](docs/EVALUATION.md)；在其他机器上重新运行命令即可生成原始产物。用量统计仅覆盖报告了 token 用量的响应；没有服务商数据，失败请求的计费与美元成本无法得知。
-
-Generated raw reports are local files in `var/evaluation/`; case evidence/audit events and dialogue checkpoints live in each `var/runs/eval-*` directory. They are ignored by Git. The submission's durable summary is [EVALUATION.md](docs/EVALUATION.md); rerun the commands to generate raw artifacts on another machine. Usage counts cover responses reporting token usage; failed-request billing and dollar cost are unknown without provider data.
+Failure cases: an early over-broad action schema caused wrong resource/parameter choices — stricter schemas fixed those contract failures while backend policy kept rejecting invalid actions; provider timeouts and unavailability remain a separate failure mode. The pipeline retest consumed 3 model calls, 13 tool calls, and 19,957 input / 1,300 output tokens. See [evaluation methods, results, and limitations](docs/EVALUATION.md).
 
 ## 假设与取舍 / Assumptions and tradeoffs
 
-- 合成的目录身份与经理/专员角色使本地演示成为可能。本地用户可以选择任意夹具身份；本演示不是生产级访问控制部署。<br>Synthetic directory identities and manager/specialist roles allow local demonstration. A local user can select any fixture identity; the demo is not a production access-control deployment.
-- 词法检索和 SQLite 中的 JSON 记录让小型语料便于检查。更大的语料需要检索质量评估、索引，以及更严格的新鲜度/保留控制。<br>Lexical retrieval and JSON records in SQLite keep the small corpus easy to inspect. Larger corpora would need retrieval-quality evaluation, indexing, and stricter freshness/retention controls.
-- 固定时钟与隔离运行使场景对比可复现。但它们无法复现持续变化的企业服务，也无法复现观察到的长时间运行的 VPN 会话。<br>The fixed clock and isolated runs make scenario comparisons reproducible. They do not reproduce continuously changing enterprise services or observed long-running VPN sessions.
-- 自助执行仅限于三种模拟操作类型。指导可以覆盖更多有文档的问题类型，但不支持的修复必须交给人工。<br>Self-service execution is limited to three simulated operation types. Guidance can cover a wider set of documented issues, but unsupported repairs require a human.
-- 持久化对话在预算用尽前保留调查历史。目前没有摘要/压缩策略，也没有分布式 worker 协调。<br>Persistent dialogue retains investigation history until a budget is reached. There is no summarization/compaction strategy or distributed worker coordination.
-- 同步、串行的轮次简化了本地状态安全。并发轮询可以展示执行进度，但回复不逐 token 流式输出，也不支持生产级并发。token/调用次数预算只能限制工作量，不能强制执行金额预算或整个案例的截止时限。<br>Synchronous, serialized turns simplify local state safety. Concurrent polling exposes execution progress, but replies do not stream token by token and production concurrency is not supported. Token/call budgets bound work; they do not enforce a monetary budget or a whole-case deadline.
+- 夹具身份选择器与合成经理/专员角色使本地演示可行；这不是生产级访问控制。<br>Fixture identity selection and synthetic manager/specialist roles enable a local demo; this is not production access control.
+- 词法检索 + SQLite 中的 JSON 记录便于检查小语料；更大语料需要检索质量评估、索引与新鲜度控制。<br>Lexical retrieval and JSON records in SQLite keep the small corpus inspectable; larger corpora would need retrieval-quality evaluation, indexing, and freshness controls.
+- 固定时钟与隔离运行保证可复现，但无法模拟持续变化的企业服务。<br>A fixed clock and isolated runs make scenarios reproducible but cannot mimic continuously changing enterprise services.
+- 自助执行仅限三种模拟操作；指导可覆盖更多有文档的问题，但不支持的修复必须交人。<br>Self-service execution is limited to three simulated operations; guidance covers more documented issues, but unsupported repairs require a human.
+- 同步串行轮次 + 轮询进度简化了本地状态安全；无逐 token 流式、无摘要压缩、无分布式协调；token/调用预算只限制工作量，不强制执行金额预算或案例截止时限。<br>Synchronous serialized turns with polled progress simplify local state safety; no token streaming, summarization, or distributed coordination; token/call budgets bound work, not monetary cost or a whole-case deadline.
 
-## 遗留缺口与后续改进方向 / Remaining gaps and improvements with more time
+## 有更多时间会改进什么 / Improvements with more time
 
-1. 将说明 HTML 中的 Salesforce/芝加哥变慢问题做成专门的故障场景并补充实时对话评估。其操作手册、状态记录与历史已存在，但尚不能证明该示例的端到端支持。<br>Add the HTML's Salesforce/Chicago slowdown as a dedicated incident scenario and live conversation evaluation. Its runbook, status record, and history already exist, but they do not establish end-to-end support for that example.
-2. 针对含糊/不完整的请求、缺失的操作手册、超出范围的请求、员工拒绝授权以及对抗性来源文本，补充真实模型的多轮试验。现有脚本化/后端测试只建立了部分边界，不能代表模型面对面试中新输入的行为。<br>Add real-model multi-turn trials for vague/incomplete requests, missing runbooks, out-of-scope requests, declined consent, and adversarial source text. Existing scripted/backend tests establish selected boundaries, not the model's behavior on new interview inputs.
-3. 扩大浏览器 QA 范围并完成一次干净安装演练。2026-10-13 的交互更新通过了 62 个确定性测试，以及针对进行中进度与来源展开的脚本化浏览器检查。完整的真实模型浏览器流程与干净安装仍未验证。<br>Broaden browser QA and complete a clean installation rehearsal. The 2026-10-13 interaction update passed 62 deterministic tests plus scripted browser checks for in-flight progress and source expansion. Full real-model browser journeys and a clean installation remain unverified.
-4. 提升服务商可靠性并重复试验。记录失败类别、时延分布与恢复行为（不重放操作）；评估服务商/模型选择与显式重试策略。<br>Improve provider reliability and repeat trials. Record failure categories, latency distributions, and recovery behavior without replaying actions; evaluate provider/model choices and explicit retry policies.
-5. 在结构性结果检查之外加强评估：评判澄清质量、来源相关性/引用有效性、不确定性表达、无依据的建议与交接准确性。目前一个笼统的失败交接也能通过升级检查，这并不能证明诊断已经完成。<br>Strengthen evaluation beyond structural outcome checks: judge clarification quality, source relevance/citation validity, uncertainty, unsupported advice, and handoff accuracy. A generic failure handoff currently can pass an escalation check; that does not demonstrate a completed diagnosis.
-6. 在宣称"多数案例可解决"或"两分钟以内 SLA"之前，先测量真实员工的结果、响应时间与金钱成本。<br>Measure actual employee outcomes, response time, and monetary cost before claiming majority-case resolution or an under-two-minute SLA.
+1. 把 Salesforce/芝加哥变慢做成专属故障场景并补实时评估（操作手册、状态与历史已存在，缺端到端证据）。<br>Add the Salesforce/Chicago slowdown as a dedicated scenario with live evaluation (runbook, status, and history exist; end-to-end evidence is missing).
+2. 针对含糊/超范围请求、缺失操作手册、员工拒绝授权与对抗性来源文本，补真实模型的多轮试验。<br>Add real-model multi-turn trials for vague/out-of-scope requests, missing runbooks, declined consent, and adversarial source text.
+3. 干净机器安装演练与完整真实模型浏览器流程 QA。<br>Clean-machine installation rehearsal and full real-model browser QA.
+4. 服务商可靠性：重复试验、记录失败分类与时延分布、评估不重放操作的重试策略。<br>Provider reliability: repeated trials, failure categories, latency distributions, and retry policies that never replay mutations.
+5. 语义级评估：澄清质量、引用有效性、不确定性表达与交接准确性（目前笼统的失败交接也能通过结构性升级检查）。<br>Semantic evaluation: clarification quality, citation validity, uncertainty expression, and handoff accuracy (a generic failure handoff currently passes structural escalation checks).
+6. 宣称"多数案例可解决"或"两分钟 SLA"前，先测量真实员工结果、响应时间与金钱成本。<br>Measure real employee outcomes, response time, and monetary cost before claiming majority resolution or a two-minute SLA.
+7. 生产化方向：SSO 替代夹具身份、最小权限的目录/状态/IT 操作 API、Slack/Teams 入口、携带完整证据的 ServiceNow 交接、密钥管理与数据保留策略。<br>Production direction: SSO instead of fixture identities, least-privilege directory/status/IT-action APIs, Slack/Teams delivery, ServiceNow handoff with full evidence, secret management, and data retention.
 
-若投入生产：用 SSO 替换夹具身份选择；接入最小权限的目录/状态/IT 操作 API；通过 Slack/Teams 或经认证的 Web 界面承载对话。将升级转发到 ServiceNow 等人工服务，并携带同样的证据/尝试历史。补充密钥管理、数据保留与删除、监控、限流、分布式状态协调，以及经过评审的生产操作手册。这些集成属于本 take-home 的可选后续设计工作。
+更多细节见 [docs/](docs/)：[评估](docs/EVALUATION.md)、[演示指南](docs/DEMO_GUIDE.md)、[交互设计](docs/INTERACTION_DESIGN.md)、[实现计划](docs/IMPLEMENTATION_PLAN.md)、[进度](docs/PROGRESS.md)、[需求审计](docs/REQUIREMENTS_CHECKLIST.md)。
 
-For production, replace fixture identity selection with SSO, connect least-privilege directory/status/IT action APIs, and deliver the conversation through Slack/Teams or an authenticated web interface. Forward escalations to a human service such as ServiceNow with the same evidence/attempt history. Add secret management, data retention and deletion, monitoring, rate limits, distributed state coordination, and reviewed production runbooks. These integrations are optional future design work for this take-home.
-
-## 面试演示与文档 / Interview walkthrough and documentation
-
-场景提示、员工/审核人选择以及观察要点见[演示指南](docs/DEMO_GUIDE.md)。演示一个经过核验的常规修复、双资源审批流程，以及一次跨系统交接；检查其队列签收与证据。同时接受面试官现场输入的新问题，展示澄清提问或实际限制，而不是挑一个预设答案。API 接受任意问题文本，但对计划外含糊问题的实时处理尚未系统验证。未准备录屏演示。
-
-Use the [demo guide](docs/DEMO_GUIDE.md) for scenario prompts, employee/reviewer choices, and what to observe. Show one verified routine fix, the two-resource approval flow, and a cross-system handoff; inspect its queue acknowledgement and evidence. Also accept a fresh problem typed by the interviewer and show clarifying questions or the actual limitation rather than selecting a canned answer. The API accepts arbitrary problem text, but live handling of unplanned ambiguous problems has not yet been systematically validated. No recorded demo has been prepared.
-
-演示前请查阅[评估结果：成功与失败](docs/EVALUATION.md)、[实现进度](docs/PROGRESS.md)与[HTML 需求审计](docs/REQUIREMENTS_CHECKLIST.md)。审计记录了哪些交付物已完成、哪些行为只有部分证据、哪些验证工作仍待完成。
-
-Review the [evaluation successes and failures](docs/EVALUATION.md), [implementation progress](docs/PROGRESS.md), and [HTML requirement audit](docs/REQUIREMENTS_CHECKLIST.md) before presenting. The audit records which deliverables are complete, which behaviors have partial evidence, and which validation work remains.
+Further detail lives in [docs/](docs/): [evaluation](docs/EVALUATION.md), [demo guide](docs/DEMO_GUIDE.md), [interaction design](docs/INTERACTION_DESIGN.md), [implementation plan](docs/IMPLEMENTATION_PLAN.md), [progress](docs/PROGRESS.md), and the [requirement audit](docs/REQUIREMENTS_CHECKLIST.md).
