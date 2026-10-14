@@ -51,15 +51,16 @@ class ChangeArgs(Args):
 class DiagnosticArgs(Args):
     service_id: str
     device_id: str | None = None
+    resource_id: str | None = None
 
 
 CATALOG = {
-    "get_employee_context": (EmptyArgs, "Read the authenticated employee's department, location, assigned devices, account states and access grants."),
+    "get_employee_context": (EmptyArgs, "Read the authenticated employee's department, roles, location, assigned devices, account states, access grants and readable shared diagnostic resources."),
     "search_knowledge": (SearchArgs, "Search fictional documented IT procedures. Search ranking is relevance, not diagnostic confidence."),
     "get_runbook": (ArticleArgs, "Read a selected documented procedure, including applicability and verification."),
     "get_service_status": (StatusArgs, "Read service health and incidents with timestamps and affected scope. Check scope before assuming impact."),
     "get_recent_changes": (ChangeArgs, "Find changes affecting listed services since an aware timestamp. Correlation alone does not establish cause."),
-    "get_diagnostic_snapshot": (DiagnosticArgs, "Read observations for the authenticated employee's authorized service/device target."),
+    "get_diagnostic_snapshot": (DiagnosticArgs, "Read personal device or authorized shared-resource observations. Optionally select device_id OR resource_id, never both. Shared resource IDs are listed by get_employee_context."),
     "search_resolution_history": (HistoryArgs, "Find previous resolutions with causes and verified outcomes; compare current evidence before applying a fix."),
 }
 
@@ -133,6 +134,7 @@ class ReadTools:
             entries += self._entries("device", "device_id", data["devices"])
             entries += self._entries("account", "account_id", data["accounts"])
             entries += self._entries("access_grant", "grant_id", data["access_grants"])
+            entries += self._entries("resource", "resource_id", data["diagnostic_resources"])
             return data, entries
         if name == "search_knowledge":
             rows = self.knowledge.search(args.query, args.service_id, args.limit)
@@ -151,8 +153,8 @@ class ReadTools:
             rows = [row for row in self.repository.sources("changes") if set(row["service_ids"]) & set(args.service_ids) and datetime.fromisoformat(row["started_at"]) >= args.since and (args.environment is None or row["environment"] == args.environment)]
             return rows, self._entries("change", "change_id", rows)
         if name == "get_diagnostic_snapshot":
-            rows = self.sources.diagnostics(context.employee_id, args.service_id, args.device_id)
-            if args.service_id == "okta" and not args.device_id:
+            rows = self.sources.diagnostics(context.employee_id, args.service_id, args.device_id, args.resource_id)
+            if args.service_id == "okta" and not args.device_id and not args.resource_id:
                 accounts = [row for row in self.repository.sources("account_states") if row["employee_id"] == context.employee_id and row["service_id"] == args.service_id]
                 return accounts, self._entries("account", "account_id", accounts)
             return rows, self._entries("diagnostic", "snapshot_id", rows)

@@ -9,7 +9,7 @@ def score_case(scenario: str, case: dict, evidence: list, actions: list, handoff
         "resolved_has_verification": case["status"] != "resolved" or bool(case.get("verification") and case["verification"]["outcome"] == "success" and case["verification"]["employee_confirmed"]),
         "escalated_has_context": case["status"] != "escalated" or bool(handoff and handoff.get("reason") and handoff.get("issue_summary") and "attempted_fixes" in handoff and "evidence" in handoff),
     }
-    if scenario in {"baseline", "vpn_stale_profile"}:
+    if scenario in {"account_lockout", "vpn_stale_profile"}:
         checks["resolved_routine_issue"] = case["status"] == "resolved"
     if scenario == "production_access":
         checks["both_resources_completed"] = case["status"] == "resolved" and {a["details"].get("resource_id") for a in actions} >= {"snowflake-prod", "grafana-internal"}

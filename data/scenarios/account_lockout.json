@@ -1,0 +1,12 @@
+{
+  "scenario_id": "account_lockout",
+  "version": "2.0",
+  "clock": "2026-10-12T10:00:00+08:00",
+  "overrides": {},
+  "faults": [],
+  "conditions": [
+    {
+      "kind": "account_locked"
+    }
+  ]
+}

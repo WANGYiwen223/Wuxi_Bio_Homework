@@ -35,7 +35,7 @@
     "os": "macOS 15",
     "managed": true,
     "vpn_client_version": "5.2.1",
-    "vpn_profile_revision": 1,
+    "vpn_profile_revision": 2,
     "required_vpn_profile_revision": 2,
     "region": "us-central"
   },

@@ -194,5 +194,5 @@ api('/demo/employees').then(rows => {
     const option = text('option', employee.employee_id + ' · ' + employee.name + ' · ' + employee.department); option.value = employee.employee_id; el('employee').append(option);
     if (employee.roles.some(role => ['manager','it_reviewer','security_reviewer'].includes(role))) el('reviewer').append(option.cloneNode(true));
   }
-  el('employee').value = 'EMP-003'; el('reviewer').value = 'EMP-005'; setBusy(false);
+  setBusy(false);
 }).catch(e => el('error').textContent = e.message);

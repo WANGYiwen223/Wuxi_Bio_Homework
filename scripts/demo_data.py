@@ -2,6 +2,7 @@
 
 import argparse
 import json
+import random
 import re
 import sqlite3
 from datetime import datetime
@@ -51,10 +52,55 @@ def check_timestamps(value, clock):
             check_timestamps(item, clock)
 
 
-def load_scenario(name):
+def apply_conditions(scenario, records, employee_ids, random_seed):
+    """Materialize personal faults without encoding an employee in a template."""
+    require(type(random_seed) is int, "Random seed must be an integer")
+    employees = {e["employee_id"]: e for e in records["employees"]}
+    if employee_ids is not None:
+        require(bool(employee_ids) and len(employee_ids) == len(set(employee_ids)), "Employee selection must be nonempty and unique")
+        require(set(employee_ids) <= employees.keys(), "Unknown selected employee")
+    selected = set(employee_ids) if employee_ids is not None else set(employees)
+    rng = random.Random(random_seed)
+    assignments = []
+    seen = set()
+    for condition in scenario["conditions"]:
+        kind = condition["kind"]
+        require(kind in {"account_locked", "vpn_profile_stale"} and kind not in seen, "Unknown or duplicate personal condition")
+        require(set(condition) <= {"kind", "count"}, "Unknown personal condition fields")
+        seen.add(kind)
+        if kind == "account_locked":
+            eligible = {a["employee_id"] for a in records["account_states"] if a["service_id"] == "okta"}
+        else:
+            eligible = {d["employee_id"] for d in records["devices"] if d["managed"]}
+        candidates = sorted(eid for eid in selected & eligible if employees[eid]["account_status"] == "active")
+        require(candidates, f"No eligible employees for {kind}")
+        if "count" in condition:
+            count = condition["count"]
+            require(type(count) is int and count > 0, "Condition count must be a positive integer")
+            candidates = sorted(rng.sample(candidates, min(count, len(candidates))))
+        for eid in candidates:
+            if kind == "account_locked":
+                for account in records["account_states"]:
+                    if account["employee_id"] == eid and account["service_id"] == "okta":
+                        account.update(status="locked", failed_attempts=6)
+            else:
+                for device in records["devices"]:
+                    if device["employee_id"] != eid or not device["managed"]:
+                        continue
+                    device["vpn_profile_revision"] = device["required_vpn_profile_revision"] - 1
+                    snapshots = [s for s in records["diagnostic_snapshots"] if s["device_id"] == device["device_id"] and s["service_id"] == "vpn"]
+                    require(snapshots, "Managed VPN device needs a diagnostic snapshot")
+                    for snapshot in snapshots:
+                        snapshot["observations"].update(profile_revision=device["vpn_profile_revision"], disconnect_interval_minutes=12, last_error="PROFILE_REVISION_MISMATCH")
+            assignments.append({"employee_id": eid, "condition": kind})
+    scenario["generation"] = {"random_seed": random_seed, "employee_ids": sorted(selected), "assignments": assignments}
+
+
+def load_scenario(name, employee_ids=None, random_seed=42):
     require(re.fullmatch(r"[a-z0-9_-]+", name), "Invalid scenario name")
     scenario = read_json(DATA / "scenarios" / f"{name}.json")
     require(scenario["scenario_id"] == name, "Scenario filename/ID mismatch")
+    require("employee_id" not in scenario, "Scenario must not bind a default employee")
     records = {name: read_json(DATA / "fixtures" / f"{name}.json") for name in COLLECTIONS}
     for collection, patches in scenario["overrides"].items():
         require(collection in COLLECTIONS, f"Unknown override collection: {collection}")
@@ -68,6 +114,7 @@ def load_scenario(name):
             seen.add(identifier)
             indexed[identifier] = {**indexed.get(identifier, {}), **patch}
         records[collection] = list(indexed.values())
+    apply_conditions(scenario, records, employee_ids, random_seed)
     return scenario, records
 
 
@@ -91,7 +138,6 @@ def validate_scenario(scenario, records):
         require(identifier in indexes[collection], f"Missing reference {collection}/{identifier}")
         return indexes[collection][identifier]
 
-    ref("employees", scenario["employee_id"])
     for employee in records["employees"]:
         if employee["manager_id"]:
             manager = ref("employees", employee["manager_id"])
@@ -103,6 +149,11 @@ def validate_scenario(scenario, records):
         require(device["device_id"] in ref("employees", device["employee_id"])["device_ids"], "Device missing from employee directory")
     for resource in records["resources"]:
         ref("services", resource["service_id"])
+        if "diagnostic_readers" in resource:
+            readers = resource["diagnostic_readers"]
+            require(isinstance(readers, dict) and set(readers) == {"departments", "roles"}, "Invalid diagnostic access scope")
+            require(all(isinstance(values, list) and all(isinstance(v, str) and v for v in values) for values in readers.values()), "Invalid diagnostic reader list")
+            require(bool(readers["departments"] or readers["roles"]), "Empty diagnostic access scope")
     for grant in records["access_grants"]:
         ref("employees", grant["employee_id"])
         resource = ref("resources", grant["resource_id"])
@@ -121,7 +172,13 @@ def validate_scenario(scenario, records):
                 require(aware_time(row["started_at"]) <= aware_time(row["ended_at"]), "Change ends before start")
     for collection in ["account_states", "diagnostic_snapshots"]:
         for row in records[collection]:
-            ref("employees", row["employee_id"])
+            if collection == "diagnostic_snapshots" and row["employee_id"] is None:
+                require(row.get("resource_id") and row["device_id"] is None, "Shared diagnostic needs a resource and no personal device")
+                resource = ref("resources", row["resource_id"])
+                require(resource["service_id"] == row["service_id"] and "diagnostic_readers" in resource, "Shared diagnostic scope mismatch")
+            else:
+                ref("employees", row["employee_id"])
+                require(not row.get("resource_id"), "Personal diagnostic cannot claim a shared resource")
             ref("services", row["service_id"])
             if row.get("device_id"):
                 device = ref("devices", row["device_id"])
@@ -175,13 +232,19 @@ def validate_all():
         indexes = validate_scenario(scenario, records)
         article_count, rule_count = validate_common(indexes)
     expected = read_json(ROOT / "tests/conversations/expected_outcomes.json")
-    require(set(names) == set(expected), "Scenario/evaluation coverage mismatch")
+    require(set(expected) <= set(names), "Unknown evaluation scenario")
+    for name, case in expected.items():
+        require(case["employee_ids"] and len(case["employee_ids"]) == len(set(case["employee_ids"])), "Evaluation needs unique actors")
+        require(case["prompt"].strip(), "Evaluation needs an opening issue")
+        for employee_id in case["employee_ids"]:
+            scenario, records = load_scenario(name, [employee_id])
+            validate_scenario(scenario, records)
     print(f"Validated {len(names)} scenarios, {article_count} articles, {rule_count} policy rules, and all fixture references.")
     return names
 
 
-def seed(name, run_id=None):
-    scenario, records = load_scenario(name)
+def seed(name, run_id=None, employee_ids=None, random_seed=42):
+    scenario, records = load_scenario(name, employee_ids, random_seed)
     validate_common(validate_scenario(scenario, records))
     run_id = run_id or name
     require(re.fullmatch(r"[a-zA-Z0-9_-]+", run_id), "Invalid run ID")
@@ -204,9 +267,13 @@ def seed(name, run_id=None):
         for collection, rows in records.items():
             require(db.execute(f"SELECT COUNT(*) FROM {collection}").fetchone()[0] == len(rows), f"Seed count mismatch: {collection}")
     # Kept outside the model-visible data repositories.
-    manifest = {"scenario_id": name, "clock": scenario["clock"], "employee_id": scenario["employee_id"], "faults": scenario["faults"], "database": str(db_path), "counts": {name: len(rows) for name, rows in records.items()}}
+    manifest = {"scenario_id": name, "fixture_version": scenario["version"], "clock": scenario["clock"], "generation": scenario["generation"], "faults": scenario["faults"], "database": str(db_path), "counts": {name: len(rows) for name, rows in records.items()}}
     (run_dir / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
     print(f"Seeded {name}: {sum(map(len, records.values()))} source records; SQLite integrity OK.")
+    for kind in sorted({a["condition"] for a in scenario["generation"]["assignments"]}):
+        affected = [a["employee_id"] for a in scenario["generation"]["assignments"] if a["condition"] == kind]
+        print(f"  {kind}: {', '.join(affected)}")
+    return run_dir
 
 
 def main():
@@ -214,7 +281,9 @@ def main():
     commands = parser.add_subparsers(dest="command", required=True)
     commands.add_parser("validate")
     seed_parser = commands.add_parser("seed")
-    seed_parser.add_argument("--scenario", default="baseline")
+    seed_parser.add_argument("--scenario", default="mixed_issues")
+    seed_parser.add_argument("--employees", help="Comma-separated eligible employees for personal conditions; shared incidents keep their geographic/resource scope")
+    seed_parser.add_argument("--random-seed", type=int, default=42, help="Reproducible sampling for conditions with a count")
     seed_parser.add_argument("--run-id")
     seed_parser.add_argument("--all", action="store_true", help="Seed all scenarios into distinct run directories")
     args = parser.parse_args()
@@ -223,9 +292,9 @@ def main():
     elif args.all:
         require(args.run_id is None, "--run-id cannot be combined with --all")
         for name in validate_all():
-            seed(name)
+            seed(name, employee_ids=args.employees.split(",") if args.employees else None, random_seed=args.random_seed)
     else:
-        seed(args.scenario, args.run_id)
+        seed(args.scenario, args.run_id, args.employees.split(",") if args.employees else None, args.random_seed)
 
 
 if __name__ == "__main__":

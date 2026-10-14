@@ -7,8 +7,8 @@ from scripts.demo_data import COLLECTIONS, load_scenario, validate_scenario
 
 @pytest.fixture
 def seeded_db(tmp_path):
-    def make(name="baseline"):
-        scenario, records = load_scenario(name)
+    def make(name="baseline", employee_ids=None, random_seed=42):
+        scenario, records = load_scenario(name, employee_ids, random_seed)
         validate_scenario(scenario, records)
         path = tmp_path / f"{name}.sqlite"
         import json

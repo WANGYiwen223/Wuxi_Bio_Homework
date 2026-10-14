@@ -117,8 +117,9 @@ class ResolutionService:
                 employee = next(e for e in source_rows(db, "employees") if e["employee_id"] == context.employee_id)
                 incident = any(r["status"] != "resolved" and "vpn" in r["service_ids"] and (not r["affected_locations"] or employee["location"] in r["affected_locations"]) for r in source_rows(db, "incidents"))
                 status = next(r for r in source_rows(db, "services") if r["service_id"] == "vpn")
-                success = device["vpn_profile_revision"] == device["required_vpn_profile_revision"] and not incident and status["health"] == "healthy"
-                observations = {"profile_current": device["vpn_profile_revision"] == device["required_vpn_profile_revision"], "applicable_incident": incident, "service_health": status["health"]}
+                status_applies = status["region"] in {"global", device["region"]} and (not status["affected_locations"] or employee["location"] in status["affected_locations"])
+                success = device["vpn_profile_revision"] == device["required_vpn_profile_revision"] and not incident and (not status_applies or status["health"] == "healthy")
+                observations = {"profile_current": device["vpn_profile_revision"] == device["required_vpn_profile_revision"], "applicable_incident": incident, "service_health": status["health"], "service_status_applies": status_applies}
             else:
                 resource = next(r for r in source_rows(db, "resources") if r["resource_id"] == proposal.action.resource_id)
                 grants = source_rows(db, "access_grants")

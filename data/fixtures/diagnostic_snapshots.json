@@ -45,10 +45,10 @@
     "service_id": "vpn",
     "observed_at": "2026-10-12T09:55:00+08:00",
     "observations": {
-      "profile_revision": 1,
+      "profile_revision": 2,
       "required_profile_revision": 2,
-      "disconnect_interval_minutes": 12,
-      "last_error": "PROFILE_REVISION_MISMATCH"
+      "disconnect_interval_minutes": null,
+      "last_error": null
     }
   },
   {
@@ -105,7 +105,8 @@
   },
   {
     "snapshot_id": "BUILD-001",
-    "employee_id": "EMP-004",
+    "employee_id": null,
+    "resource_id": "jenkins-sales-etl",
     "device_id": null,
     "service_id": "jenkins",
     "observed_at": "2026-10-12T09:55:00+08:00",
@@ -118,7 +119,8 @@
   },
   {
     "snapshot_id": "REPORT-001",
-    "employee_id": "EMP-004",
+    "employee_id": null,
+    "resource_id": "tableau-sales-dashboard",
     "device_id": null,
     "service_id": "tableau",
     "observed_at": "2026-10-12T09:55:00+08:00",

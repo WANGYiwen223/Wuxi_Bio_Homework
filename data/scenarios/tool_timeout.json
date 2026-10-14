@@ -1,8 +1,7 @@
 {
   "scenario_id": "tool_timeout",
-  "version": "1.0",
+  "version": "2.0",
   "clock": "2026-10-12T10:00:00+08:00",
-  "employee_id": "EMP-004",
   "overrides": {},
   "faults": [
     {
@@ -13,6 +12,11 @@
       "behavior": "timeout",
       "fail_first_calls": 2,
       "error_code": "TOOL_TIMEOUT"
+    }
+  ],
+  "conditions": [
+    {
+      "kind": "vpn_profile_stale"
     }
   ]
 }

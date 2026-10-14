@@ -38,7 +38,7 @@ def action(context, tools, operation="grant_demo_access", resource="snowflake-pr
         parameters = {"role": role, "business_justification": "Read production metrics for team reporting"}
     else:
         evidence += tools.call(context, "get_diagnostic_snapshot", {"service_id": resource}).evidence_ids
-        parameters = {"device_id": "DEV-004"} if resource == "vpn" else {}
+        parameters = {"device_id": tools.call(context, "get_employee_context", {}).data["devices"][0]["device_id"]} if resource == "vpn" else {}
     return ActionRequest(operation=operation, resource_id=resource, environment=environment, parameters=parameters, evidence_ids=evidence)
 
 
@@ -173,7 +173,7 @@ def test_profile_refresh_cannot_bypass_outage_or_stale_status(seeded_db, tmp_pat
 
 
 def test_unlock_requires_observed_lock_consent_and_self_scope(seeded_db, tmp_path):
-    repo, ctx, engine, _, tools = setup(seeded_db, tmp_path, "baseline", "EMP-003")
+    repo, ctx, engine, _, tools = setup(seeded_db, tmp_path, "account_lockout", "EMP-003")
     request = action(ctx, tools, "unlock_demo_account", "okta", "INTERNAL")
     assert engine.evaluate(ctx, request).decision == "deny"
     consent(repo, ctx, "unlock_demo_account")

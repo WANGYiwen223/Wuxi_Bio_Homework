@@ -21,8 +21,8 @@
     "account_id": "OKTA-003",
     "employee_id": "EMP-003",
     "service_id": "okta",
-    "status": "locked",
-    "failed_attempts": 6,
+    "status": "active",
+    "failed_attempts": 0,
     "mfa_enrolled": true,
     "observed_at": "2026-10-12T09:55:00+08:00"
   },

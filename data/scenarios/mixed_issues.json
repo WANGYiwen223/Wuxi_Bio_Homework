@@ -1,0 +1,48 @@
+{
+  "scenario_id": "mixed_issues",
+  "version": "2.0",
+  "clock": "2026-10-12T10:00:00+08:00",
+  "overrides": {
+    "services": [
+      {
+        "service_id": "jenkins",
+        "health": "degraded"
+      },
+      {
+        "service_id": "tableau",
+        "health": "degraded"
+      }
+    ],
+    "diagnostic_snapshots": [
+      {
+        "snapshot_id": "BUILD-001",
+        "observations": {
+          "job": "daily-sales-etl",
+          "environment": "PROD",
+          "last_build_status": "failed",
+          "error": "Connection timeout to Snowflake; no authentication error observed",
+          "first_failed_at": "2026-10-09T21:15:00+08:00"
+        }
+      },
+      {
+        "snapshot_id": "REPORT-001",
+        "observations": {
+          "report": "sales-dashboard",
+          "last_refresh_at": "2026-10-09T19:00:00+08:00",
+          "upstream_service_id": "jenkins"
+        }
+      }
+    ]
+  },
+  "faults": [],
+  "conditions": [
+    {
+      "kind": "account_locked",
+      "count": 4
+    },
+    {
+      "kind": "vpn_profile_stale",
+      "count": 5
+    }
+  ]
+}

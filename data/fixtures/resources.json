@@ -24,5 +24,37 @@
     "supported_roles": [
       "viewer"
     ]
+  },
+  {
+    "resource_id": "jenkins-sales-etl",
+    "service_id": "jenkins",
+    "environment": "PROD",
+    "supported_roles": [
+      "viewer"
+    ],
+    "diagnostic_readers": {
+      "departments": [
+        "Data Engineering"
+      ],
+      "roles": [
+        "it_reviewer"
+      ]
+    }
+  },
+  {
+    "resource_id": "tableau-sales-dashboard",
+    "service_id": "tableau",
+    "environment": "PROD",
+    "supported_roles": [
+      "viewer"
+    ],
+    "diagnostic_readers": {
+      "departments": [
+        "Data Engineering"
+      ],
+      "roles": [
+        "it_reviewer"
+      ]
+    }
   }
 ]

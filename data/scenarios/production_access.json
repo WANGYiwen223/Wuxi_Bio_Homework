@@ -1,8 +1,8 @@
 {
   "scenario_id": "production_access",
-  "version": "1.0",
+  "version": "2.0",
   "clock": "2026-10-12T10:00:00+08:00",
-  "employee_id": "EMP-001",
   "overrides": {},
-  "faults": []
+  "faults": [],
+  "conditions": []
 }

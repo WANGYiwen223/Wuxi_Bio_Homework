@@ -102,9 +102,9 @@ A handoff includes the initial problem, subsequent employee updates, available f
 
 ## 模拟数据与智能体输入输出 / Simulated data and agent I/O
 
-说明中建议的全部五类数据源都已覆盖，另增加了一个诊断数据源。夹具数据刻意保持小规模，但包含相互竞争的解释和随时间变化的证据。
+说明中建议的全部五类数据源都已覆盖，另以诊断快照补充账号、设备和共享资源观测。员工身份与故障条件独立：同类问题可发生在多名员工身上，同一员工也可同时遇到多种问题。基础数据保持健康，由场景模板注入可复现的故障。
 
-All five suggested source categories are represented, with an additional diagnostic source. Fixtures are deliberately small but include competing explanations and time-dependent evidence.
+All five suggested source categories are represented, with diagnostic snapshots for accounts, devices and shared resources. Identities and fault conditions are independent: multiple employees can have the same problem, and one employee can have several problems. Healthy fixtures receive reproducible scenario conditions.
 
 | 数据源 Source | 本地形式 Local form | 智能体的用途与原因 Agent use and reason |
 |---|---|---|
@@ -160,22 +160,22 @@ HELPDESK_MODEL_NAME=your-tool-capable-model
 
 Environment variables override `.env`. The current defaults are a 60-second timeout per model request, eight model calls, 16 tool calls, and 48,000 context characters per employee turn; each response has an adapter limit of 1,800 output tokens. These are investigation limits, not an end-to-end latency guarantee. Optional settings are in [.env.example](.env.example). Credentials are kept out of model prompts and API output; `.env` and generated `var/` files are ignored by Git.
 
-校验夹具数据、创建独立的基线运行、检查模型兼容性，然后启动服务器：
+校验夹具数据、创建独立的多人多问题运行、检查模型兼容性，然后启动服务器：
 
-Validate the fixtures, create an independent baseline run, check model compatibility, and start the server:
+Validate the fixtures, create an independent mixed-issue run, check model compatibility, and start the server:
 
 ```powershell
 .\.venv\Scripts\python.exe scripts/demo_data.py validate
 $demoRunId = 'interview-' + (Get-Date -Format 'yyyyMMdd-HHmmss')
-.\.venv\Scripts\python.exe scripts/demo_data.py seed --scenario baseline --run-id $demoRunId
+.\.venv\Scripts\python.exe scripts/demo_data.py seed --scenario mixed_issues --random-seed 42 --run-id $demoRunId
 $env:HELPDESK_RUN_DIR = "var/runs/$demoRunId"
 .\.venv\Scripts\python.exe scripts/check_model.py
 .\.venv\Scripts\python.exe -m uvicorn helpdesk.api.main:app --host 127.0.0.1 --port 8000 --no-access-log
 ```
 
-打开[本地聊天界面](http://127.0.0.1:8000)。账号锁定场景选 EMP-003，VPN 配置文件过期场景选 EMP-004。Snowflake/Grafana 组合请求用 EMP-001，然后在独立的审批面板中使用 EMP-005。EMP-007 是 IT 专员，可查看并签收普通交接；EMP-008 处理安全类交接。这些选择器用于模拟身份与角色，并非生产级认证。
+打开[本地聊天界面](http://127.0.0.1:8000)。根据 seed 输出选择员工：混合场景中四人的账号锁定、五人的 VPN 配置过期，两组可重叠。员工仍可独立申请应用权限；数据工程员工能查看共享的 Jenkins/Tableau 故障。也可用 `--employees EMP-001,EMP-004` 将个人故障注入给指定员工。经理审批使用请求人的实际直属经理；EMP-007 为 IT 专员，EMP-008 处理安全交接。选择器用于模拟身份与角色，并非生产级认证。
 
-Open [the local chat](http://127.0.0.1:8000). Choose EMP-003 for account lockout or EMP-004 for stale VPN. For a combined Snowflake/Grafana request, use EMP-001, then EMP-005 in the separate approval panel. EMP-007 is an IT specialist who can inspect and acknowledge ordinary handoffs; EMP-008 handles security handoffs. These selectors simulate identity and roles; they are not production authentication.
+Open [the local chat](http://127.0.0.1:8000). Seed output lists four employees with locked accounts and five with stale VPN profiles; the groups overlap. Application requests are independent, and Data Engineering employees can inspect the shared Jenkins/Tableau incident. Use `--employees EMP-001,EMP-004` to target personal conditions explicitly. Approvals use the requester's actual manager; EMP-007 is an IT specialist and EMP-008 handles security handoffs. Selectors simulate identity and roles, not production authentication. `baseline` is now a healthy control; use `account_lockout` for a targeted lockout demo. New data requires a fresh run; existing databases retain their old state.
 
 演示时钟固定为 `2026-10-12T10:00:00+08:00`。API 要求回环（loopback）客户端与同源请求。切换场景时：停止服务器、灌入一个新的命名运行、将 `HELPDESK_RUN_DIR` 指向它，然后重启。灌入数据时若数据库文件已存在会被拒绝。如果模型探测失败，请检查端点/模型的 function-calling 支持与本地配置；诊断失败不会泄露凭据。
 
@@ -188,13 +188,15 @@ The demo clock is fixed at `2026-10-12T10:00:00+08:00`. The API requires loopbac
 # Deterministic tests: isolated databases and scripted models; no provider calls.
 .\.venv\Scripts\python.exe -m pytest -q
 
-# 实时对话评估：运行全部七个已配置场景，会消耗服务商 token。
-# Live conversation evaluation: all seven configured scenarios; consumes provider tokens.
+# 预览七类问题 × 两名员工的 14 个用例，不调用模型。
+.\.venv\Scripts\python.exe scripts/run_evaluation.py --list
+# 实时对话评估：运行上述矩阵，会消耗服务商 token。
+# Live conversation evaluation: 14 trials across seven problem types and multiple employees.
 .\.venv\Scripts\python.exe scripts/run_evaluation.py
 
 # 仅对跨系统故障场景做有边界的复测。
 # A bounded retest of the cross-system incident only.
-.\.venv\Scripts\python.exe scripts/run_evaluation.py --scenarios pipeline_maintenance --max-turns 5
+.\.venv\Scripts\python.exe scripts/run_evaluation.py --scenarios pipeline_maintenance --employees EMP-001 --max-turns 5
 ```
 
 确定性测试套件覆盖：身份隔离、来源追溯、缺失/冲突的观测、超时、状态/重启连续性、策略优先级、限定范围审批、事务幂等性、核验、交接上下文与 API 边界。2026-10-12 的需求审计中 **56 个测试通过**；数据校验与 `pip check` 在当前环境中也通过。
@@ -203,7 +205,7 @@ The deterministic suite covers identity isolation, provenance, missing/conflicti
 
 实时评估使用模型实际选择的工具调用和独立灌入的数据库，配合模拟的员工反馈与经理决策。评分检查持久化的证据、执行效果、核验与交接记录，而不是接受助手自称的"成功"。
 
-Live evaluations use actual model-selected tool calls and independent seeded databases, with simulated employee feedback and manager decisions. Scoring examines persisted evidence, effects, verification, and handoff records instead of accepting an assistant's claim of success.
+Live evaluations use actual model-selected tool calls and independent seeded databases, with simulated employee feedback and manager decisions. Scoring examines persisted evidence, effects, verification, and handoff records instead of accepting an assistant's claim of success. The saved trials below used the previous fixture version; they do not validate the new multi-employee matrix.
 
 | 场景 Scenario | 最近一次已保存的试验 Most recent saved trial | 秒数 Seconds | 说明 Qualification |
 |---|---|---:|---|

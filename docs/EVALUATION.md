@@ -1,5 +1,15 @@
 # Evaluation
 
+## Data version 2 — 2026-10-14
+
+Scenarios no longer contain a default employee. `baseline` is a healthy control; the account problem is now `account_lockout`. Reusable personal conditions are injected into selected employees, while shared service/resource incidents keep their scope. The default `mixed_issues` environment contains overlapping account and VPN faults and a shared pipeline incident.
+
+The evaluation configuration in `tests/conversations/expected_outcomes.json` selects two actors per problem type, producing 14 independent trials. An employee can appear in multiple problem types. Use `scripts/run_evaluation.py --list` to inspect the matrix without provider calls, or filter a live run with `--scenarios pipeline_maintenance --employees EMP-001`. Reports include employee ID and fixture version. Each trial starts from its own database; expectations and assignments are never privileged model instructions.
+
+Offline coverage includes fault injection for all eight employees, overlapping faults, independent repairs across employees, shared diagnostic access/revocation, department-dependent approval and location-dependent outage handling. Historical live results below used version 1 data and are retained as historical evidence, not a validation of the new matrix. The new live matrix has not yet been run.
+
+Validation on 2026-10-14: **109 tests passed in 14.67 seconds**; all nine scenarios, 14 articles, seven action rules and fixture references validated; JavaScript syntax and generated SQLite integrity checks passed. On this Windows host, the full test suite required execution outside the sandbox because TestClient's local socketpair initialization was blocked. Tests used scripted models and no model-provider calls.
+
 ## Method
 
 Deterministic unit/integration tests validate state transitions, identity isolation, source provenance, error handling, policy precedence, approval scope/expiry, transactional idempotency, verification, contextual handoff and API boundaries. Model doubles are explicitly scripted and do not establish model quality.

@@ -22,7 +22,7 @@ TOOL_LABELS = {
 }
 
 SOURCE_LABELS = {
-    "employee": "Employee directory", "device": "Assigned device",
+    "employee": "Employee directory", "device": "Assigned device", "resource": "Shared resource access",
     "account": "Account state", "access_grant": "Access record",
     "knowledge": "Support procedure", "system_status": "Service health",
     "incident": "Service incident", "change": "System change",

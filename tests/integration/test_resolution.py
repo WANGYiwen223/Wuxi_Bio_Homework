@@ -8,7 +8,7 @@ from helpdesk.resolution.service import ResolutionService
 
 
 def test_unlock_replays_once_and_needs_employee_confirmation(seeded_db, tmp_path):
-    repo, ctx, _, approvals, tools = setup(seeded_db, tmp_path, "baseline", "EMP-003")
+    repo, ctx, _, approvals, tools = setup(seeded_db, tmp_path, "account_lockout", "EMP-003")
     consent(repo, ctx, "unlock_demo_account")
     request = action(ctx, tools, "unlock_demo_account", "okta", "INTERNAL")
     service = ResolutionService(approvals)
@@ -25,7 +25,7 @@ def test_unlock_replays_once_and_needs_employee_confirmation(seeded_db, tmp_path
 
 
 def test_negative_feedback_returns_to_diagnosis_with_attempt_preserved(seeded_db, tmp_path):
-    repo, ctx, _, approvals, tools = setup(seeded_db, tmp_path, "baseline", "EMP-003")
+    repo, ctx, _, approvals, tools = setup(seeded_db, tmp_path, "account_lockout", "EMP-003")
     consent(repo, ctx, "unlock_demo_account")
     proposal, _ = approvals.propose(ctx, action(ctx, tools, "unlock_demo_account", "okta", "INTERNAL"))
     service = ResolutionService(approvals)
