@@ -45,9 +45,9 @@ flowchart TD
 | `escalation/` | 交接包持久化问题与补充、证据、已尝试修复、错误、未决问题与下一步建议；专员可签收队列案例。<br>Handoff packages persist the issue and updates, evidence, attempted fixes, errors, open questions, and a next step; specialists can acknowledge a queued case. |
 | `domain/`, `storage/` | Pydantic 契约；SQLite 业务库与 LangGraph 检查点库分离，无需额外数据库服务。<br>Pydantic contracts; separate SQLite databases for business records and LangGraph checkpoints, so no extra database service is needed. |
 
-核心取舍：模型负责调查与表达，代码负责权限与副作用；读取先持久化为证据再返回；写入只通过执行器修改本次运行的 SQLite；持久化的提案回执与幂等键可在不重放变更的情况下对账中断的工具调用。详见[详细架构](IT_HELPDESK_ARCHITECTURE.md)与[仓库结构](docs/REPOSITORY_STRUCTURE.md)。
+核心取舍：模型负责调查与表达，代码负责权限与副作用；读取先持久化为证据再返回；写入只通过执行器修改本次运行的 SQLite；持久化的提案回执与幂等键可在不重放变更的情况下对账中断的工具调用。
 
-Core tradeoff: the model investigates and explains while code owns authority and side effects; reads persist as evidence before being returned; writes change only the run's SQLite through the executor; durable proposal receipts and idempotency keys reconcile interrupted tool calls without replaying mutations. See the [detailed architecture](IT_HELPDESK_ARCHITECTURE.md) and [repository structure](docs/REPOSITORY_STRUCTURE.md).
+Core tradeoff: the model investigates and explains while code owns authority and side effects; reads persist as evidence before being returned; writes change only the run's SQLite through the executor; durable proposal receipts and idempotency keys reconcile interrupted tool calls without replaying mutations.
 
 ## 解决与升级的边界 / Resolution and escalation boundary
 
@@ -107,9 +107,9 @@ $env:HELPDESK_RUN_DIR = "var/runs/$demoRunId"
 .\.venv\Scripts\python.exe -m uvicorn helpdesk.api.main:app --host 127.0.0.1 --port 8000 --no-access-log
 ```
 
-打开 <http://127.0.0.1:8000>。seed 输出会列出哪些员工有锁定账号或过期 VPN 配置（两组可重叠）；应用权限申请相互独立；数据工程员工可查看共享的 Jenkins/Tableau 故障；经理审批使用请求人的真实直属经理；EMP-007 为 IT 专员、EMP-008 处理安全交接。身份选择器只是演示模拟，不是生产认证。演示时钟固定为 `2026-10-12T10:00:00+08:00`。切换场景：停服务器、灌新运行、改 `HELPDESK_RUN_DIR`、重启。可选配置见 [.env.example](.env.example)；默认每轮最多 8 次模型调用、16 次工具调用。场景提示与观察要点见[演示指南](docs/DEMO_GUIDE.md)。
+打开 <http://127.0.0.1:8000>。seed 输出会列出哪些员工有锁定账号或过期 VPN 配置（两组可重叠）；应用权限申请相互独立；数据工程员工可查看共享的 Jenkins/Tableau 故障；经理审批使用请求人的真实直属经理；EMP-007 为 IT 专员、EMP-008 处理安全交接。身份选择器只是演示模拟，不是生产认证。演示时钟固定为 `2026-10-12T10:00:00+08:00`。切换场景：停服务器、灌新运行、改 `HELPDESK_RUN_DIR`、重启。可选配置见 [.env.example](.env.example)；默认每轮最多 8 次模型调用、16 次工具调用。
 
-Open <http://127.0.0.1:8000>. The seed output lists which employees have locked accounts or stale VPN profiles (the groups overlap); access requests are independent; Data Engineering employees can inspect the shared Jenkins/Tableau incident; approvals go to the requester's actual directory manager; EMP-007 is an IT specialist and EMP-008 handles security handoffs. The identity selector is demo simulation, not production authentication. The demo clock is fixed at `2026-10-12T10:00:00+08:00`. To switch scenarios: stop the server, seed a fresh run, point `HELPDESK_RUN_DIR` at it, restart. Optional settings are in [.env.example](.env.example); defaults bound each turn to 8 model calls and 16 tool calls. See the [demo guide](docs/DEMO_GUIDE.md) for scenario prompts and what to observe.
+Open <http://127.0.0.1:8000>. The seed output lists which employees have locked accounts or stale VPN profiles (the groups overlap); access requests are independent; Data Engineering employees can inspect the shared Jenkins/Tableau incident; approvals go to the requester's actual directory manager; EMP-007 is an IT specialist and EMP-008 handles security handoffs. The identity selector is demo simulation, not production authentication. The demo clock is fixed at `2026-10-12T10:00:00+08:00`. To switch scenarios: stop the server, seed a fresh run, point `HELPDESK_RUN_DIR` at it, restart. Optional settings are in [.env.example](.env.example); defaults bound each turn to 8 model calls and 16 tool calls.
 
 ## 如何评估 / Evaluation
 
@@ -137,9 +137,9 @@ The version-2 14-case live matrix ran on 2026-10-14: **13 of 14 passed** (includ
 | VPN 证据冲突 Conflicting evidence | 结果检查通过；后续模型失败触发降级交接<br>Outcome checks passed; later model failure caused fallback | 61.27 |
 | 工具超时 Tool timeout | 结果检查通过；工具错误保留在交接中<br>Outcome checks passed; tool errors preserved in handoff | 59.65 |
 
-失败案例：早期过宽的操作 schema 导致资源/参数选错——收紧 schema 修复了这类契约性失败，后端策略则始终拒绝非法操作；服务商超时与不可用仍是独立的失败模式。管道场景复测消耗 3 次模型调用、13 次工具调用、19,957 输入 / 1,300 输出 token。详见[评估方法、结果与局限](docs/EVALUATION.md)。
+失败案例：早期过宽的操作 schema 导致资源/参数选错——收紧 schema 修复了这类契约性失败，后端策略则始终拒绝非法操作；服务商超时与不可用仍是独立的失败模式。管道场景复测消耗 3 次模型调用、13 次工具调用、19,957 输入 / 1,300 输出 token。
 
-Failure cases: an early over-broad action schema caused wrong resource/parameter choices — stricter schemas fixed those contract failures while backend policy kept rejecting invalid actions; provider timeouts and unavailability remain a separate failure mode. The pipeline retest consumed 3 model calls, 13 tool calls, and 19,957 input / 1,300 output tokens. See [evaluation methods, results, and limitations](docs/EVALUATION.md).
+Failure cases: an early over-broad action schema caused wrong resource/parameter choices — stricter schemas fixed those contract failures while backend policy kept rejecting invalid actions; provider timeouts and unavailability remain a separate failure mode. The pipeline retest consumed 3 model calls, 13 tool calls, and 19,957 input / 1,300 output tokens.
 
 ## 假设与取舍 / Assumptions and tradeoffs
 
