@@ -153,12 +153,7 @@ Failure cases: an early over-broad action schema caused wrong resource/parameter
 
 1. 把 Salesforce/芝加哥变慢做成专属故障场景并补实时评估（操作手册、状态与历史已存在，缺端到端证据）。<br>Add the Salesforce/Chicago slowdown as a dedicated scenario with live evaluation (runbook, status, and history exist; end-to-end evidence is missing).
 2. 针对含糊/超范围请求、缺失操作手册、员工拒绝授权与对抗性来源文本，补真实模型的多轮试验。<br>Add real-model multi-turn trials for vague/out-of-scope requests, missing runbooks, declined consent, and adversarial source text.
-3. 干净机器安装演练与完整真实模型浏览器流程 QA。<br>Clean-machine installation rehearsal and full real-model browser QA.
-4. 服务商可靠性：重复试验、记录失败分类与时延分布、评估不重放操作的重试策略。<br>Provider reliability: repeated trials, failure categories, latency distributions, and retry policies that never replay mutations.
-5. 语义级评估：澄清质量、引用有效性、不确定性表达与交接准确性（目前笼统的失败交接也能通过结构性升级检查）。<br>Semantic evaluation: clarification quality, citation validity, uncertainty expression, and handoff accuracy (a generic failure handoff currently passes structural escalation checks).
-6. 宣称"多数案例可解决"或"两分钟 SLA"前，先测量真实员工结果、响应时间与金钱成本。<br>Measure real employee outcomes, response time, and monetary cost before claiming majority resolution or a two-minute SLA.
-7. 生产化方向：SSO 替代夹具身份、最小权限的目录/状态/IT 操作 API、Slack/Teams 入口、携带完整证据的 ServiceNow 交接、密钥管理与数据保留策略。<br>Production direction: SSO instead of fixture identities, least-privilege directory/status/IT-action APIs, Slack/Teams delivery, ServiceNow handoff with full evidence, secret management, and data retention.
-
-更多细节见 [docs/](docs/)：[评估](docs/EVALUATION.md)、[演示指南](docs/DEMO_GUIDE.md)、[交互设计](docs/INTERACTION_DESIGN.md)、[实现计划](docs/IMPLEMENTATION_PLAN.md)、[进度](docs/PROGRESS.md)、[需求审计](docs/REQUIREMENTS_CHECKLIST.md)。
-
-Further detail lives in [docs/](docs/): [evaluation](docs/EVALUATION.md), [demo guide](docs/DEMO_GUIDE.md), [interaction design](docs/INTERACTION_DESIGN.md), [implementation plan](docs/IMPLEMENTATION_PLAN.md), [progress](docs/PROGRESS.md), and the [requirement audit](docs/REQUIREMENTS_CHECKLIST.md).
+3. 服务商可靠性：重复试验、记录失败分类与时延分布、评估不重放操作的重试策略。<br>Provider reliability: repeated trials, failure categories, latency distributions, and retry policies that never replay mutations.
+4. 语义级评估：澄清质量、引用有效性、不确定性表达与交接准确性（目前笼统的失败交接也能通过结构性升级检查）。<br>Semantic evaluation: clarification quality, citation validity, uncertainty expression, and handoff accuracy (a generic failure handoff currently passes structural escalation checks).
+5. 宣称"多数案例可解决"或"两分钟 SLA"前，先测量真实员工结果、响应时间与金钱成本。<br>Measure real employee outcomes, response time, and monetary cost before claiming majority resolution or a two-minute SLA.
+6. 生产化方向：SSO 替代夹具身份、最小权限的目录/状态/IT 操作 API、Slack/Teams 入口、携带完整证据的 ServiceNow 交接、密钥管理与数据保留策略。<br>Production direction: SSO instead of fixture identities, least-privilege directory/status/IT-action APIs, Slack/Teams delivery, ServiceNow handoff with full evidence, secret management, and data retention.

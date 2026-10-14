@@ -9,6 +9,7 @@ htmlcov/
 build/
 dist/
 probes/
+docs/
 
 # Virtual environments
 .venv/
@@ -20,7 +21,6 @@ probes/
 
 # Runtime artifacts
 var/**
-!var/.gitkeep
 *.log
 
 # Editor / OS
