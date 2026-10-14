@@ -89,8 +89,14 @@ def activity(event):
         label, status = "Reviewing the request and available findings", "running"
     elif kind == "model_call":
         label = "Next step prepared"
+        if event.get("response_error"):
+            label, status = "Model did not return a complete, usable response", "error"
+    elif kind == "model_response_retry":
+        label, status = "Retrying the response with the investigation context preserved", "running"
     elif kind == "model_failure":
         label, status = "Model service unavailable; preserving findings", "error"
+        if event.get("error_type") in {"model_empty_response", "model_output_truncated", "model_response_refused"}:
+            label = "Unable to produce a usable response; preserving findings for IT"
     elif kind in {"tool_started", "tool_completed"}:
         label = TOOL_LABELS.get(event.get("tool_name"), "Run a diagnostic step")
         result = event.get("status")

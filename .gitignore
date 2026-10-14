@@ -8,15 +8,15 @@ coverage.xml
 htmlcov/
 build/
 dist/
-data/
+probes/
 
 # Virtual environments
 .venv/
 
 # Environment files
 .env
-.env.example
 .env.*
+!.env.example
 
 # Runtime artifacts
 var/**

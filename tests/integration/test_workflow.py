@@ -15,9 +15,11 @@ class ScriptModel:
     def __init__(self, replies):
         self.replies = iter(replies)
         self.seen = []
+        self.output_limits = []
 
-    def respond(self, messages, schemas):
+    def respond(self, messages, schemas, *, max_output_tokens=None):
         self.seen.append(messages)
+        self.output_limits.append(max_output_tokens)
         reply = next(self.replies)
         if isinstance(reply, Exception):
             raise reply

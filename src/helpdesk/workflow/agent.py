@@ -67,6 +67,8 @@ class LoopState(TypedDict, total=False):
     duplicate_calls: int
     signatures: list[str]
     fingerprints: dict[str, str]
+    response_retries: int
+    retry_response: bool
 
 
 EXTRA_TOOLS = {
@@ -103,24 +105,44 @@ class DiagnosticAgent:
             return {"stop": True, "failure": "context_budget", "final": "The investigation reached its context limit. I will preserve the findings for IT."}
         started = time.monotonic()
         call_id = new_id("MODEL")
-        trace = {"turn_id": state["turn_id"], "call_id": call_id, "model_call": state["model_calls"] + 1}
+        output_limit = self.settings.model_recovery_max_tokens if state.get("retry_response") else self.settings.model_max_tokens
+        trace = {"turn_id": state["turn_id"], "call_id": call_id, "model_call": state["model_calls"] + 1, "max_output_tokens": output_limit}
         self.repository.trace(context, "model_started", trace)
         try:
-            reply = self.model.respond(messages, self._schemas())
+            reply = self.model.respond(messages, self._schemas(), max_output_tokens=output_limit)
         except ModelFailure as error:
             self.repository.trace(context, "model_failure", {**trace, "error_type": error.category, "duration_ms": round((time.monotonic() - started) * 1000)})
             latest = self.repository.get_case(context)
             self.repository.save_case(context, transition(latest, latest.status, context.clock.now(), tool_errors=[*latest.tool_errors, {"tool_name": "model", "code": error.category}]))
             return {"model_calls": state["model_calls"] + 1, "stop": True, "failure": "model_unavailable", "final": "The model service is unavailable. I will preserve the investigation for IT."}
-        self.repository.trace(context, "model_call", {**trace, "duration_ms": round((time.monotonic() - started) * 1000), "input_tokens": reply.input_tokens, "output_tokens": reply.output_tokens})
+        error = reply.response_error
+        self.repository.trace(context, "model_call", {**trace, "duration_ms": round((time.monotonic() - started) * 1000), "input_tokens": reply.input_tokens, "output_tokens": reply.output_tokens,
+                                                    "finish_reason": reply.finish_reason, "reasoning_tokens": reply.reasoning_tokens, "response_error": error})
+        usage = {"model_calls": state["model_calls"] + 1, "input_tokens": state["input_tokens"] + reply.input_tokens, "output_tokens": state["output_tokens"] + reply.output_tokens}
+        if error:
+            latest = self.repository.get_case(context)
+            self.repository.save_case(context, transition(latest, latest.status, context.clock.now(), tool_errors=[*latest.tool_errors, {
+                "tool_name": "model", "code": error, "finish_reason": reply.finish_reason,
+                "output_tokens": reply.output_tokens, "reasoning_tokens": reply.reasoning_tokens,
+            }]))
+            # Retry generation, never tools. Discard the invalid response so neither
+            # empty messages nor truncated tool calls poison the next request.
+            retry = error != "model_response_refused" and state.get("response_retries", 0) < 1 and usage["model_calls"] < self.settings.max_model_calls
+            if retry:
+                self.repository.trace(context, "model_response_retry", {**trace, "error_code": error, "next_max_output_tokens": self.settings.model_recovery_max_tokens})
+                return {**usage, "last_calls": [], "retry_response": True, "response_retries": state.get("response_retries", 0) + 1, "stop": False}
+            self.repository.trace(context, "model_failure", {**trace, "error_type": error})
+            chinese = any(any('\u4e00' <= ch <= '\u9fff' for ch in m.text) for m in self.repository.messages(context) if m.role == "employee")
+            message = "模型未能生成完整、可用的答复，自动排查已停止。你的问题和已获取的证据已保留。" if chinese else "The model could not produce a complete, usable response, so automatic investigation has stopped. Your issue and collected findings have been preserved."
+            return {**usage, "last_calls": [], "retry_response": False, "stop": True, "failure": error, "final": message}
         calls = [c.model_dump() for c in reply.calls]
         assistant = {"role": "assistant", "content": redact(reply.text) or None}
         if calls:
             assistant["tool_calls"] = [{"id": c["call_id"], "type": "function", "function": {"name": c["name"], "arguments": c["arguments"]}} for c in calls]
-        updates = {"dialogue": [*state["dialogue"], assistant], "last_calls": calls, "model_calls": state["model_calls"] + 1, "input_tokens": state["input_tokens"] + reply.input_tokens, "output_tokens": state["output_tokens"] + reply.output_tokens}
+        updates = {**usage, "dialogue": [*state["dialogue"], assistant], "last_calls": calls, "retry_response": False}
         if not calls:
             # Free text can clarify, but never changes resolution status.
-            updates.update(stop=True, final=redact(reply.text) or "Please describe the affected application and error.")
+            updates.update(stop=True, final=redact(reply.text))
         return updates
 
     def _tool_node(self, state, context):
@@ -196,6 +218,9 @@ class DiagnosticAgent:
         """Close interrupted tool exchanges without replaying side effects."""
         repaired = []
         for index, message in enumerate(dialogue):
+            if message.get("role") == "assistant" and not (message.get("content") or "").strip() and not message.get("tool_calls"):
+                # Pre-F12 checkpoints may contain empty assistant messages.
+                continue
             repaired.append(message)
             calls = message.get("tool_calls", []) if message.get("role") == "assistant" else []
             if not calls:
@@ -247,7 +272,7 @@ class DiagnosticAgent:
             builder.add_node("model", lambda state: self._model_node(state, context))
             builder.add_node("tools", lambda state: self._tool_node(state, context))
             builder.add_edge(START, "model")
-            builder.add_conditional_edges("model", lambda s: END if s.get("stop") else "tools")
+            builder.add_conditional_edges("model", lambda s: END if s.get("stop") else "model" if s.get("retry_response") else "tools")
             builder.add_conditional_edges("tools", lambda s: END if s.get("stop") else "model")
             graph = builder.compile(checkpointer=self.checkpointer)
             config = {"configurable": {"thread_id": context.case_id}, "recursion_limit": 2 * self.settings.max_model_calls + 5}
@@ -257,10 +282,14 @@ class DiagnosticAgent:
                 # Recover conversation if a checkpoint file was lost; business state survives.
                 dialogue = [{"role": "user" if m.role == "employee" else "assistant", "content": m.text} for m in self.repository.messages(context)[:-1]]
             dialogue = self._reconcile_dialogue(context, dialogue)
-            initial = {"turn_id": turn_id, "dialogue": [*dialogue, {"role": "user", "content": safe_text}], "model_calls": 0, "tool_calls": 0, "input_tokens": 0, "output_tokens": 0, "stop": False, "final": "", "failure": "", "signatures": [], "fingerprints": {}, "duplicate_calls": 0}
+            initial = {"turn_id": turn_id, "dialogue": [*dialogue, {"role": "user", "content": safe_text}], "model_calls": 0, "tool_calls": 0, "input_tokens": 0, "output_tokens": 0, "stop": False, "final": "", "failure": "", "signatures": [], "fingerprints": {}, "duplicate_calls": 0, "response_retries": 0, "retry_response": False}
             state = graph.invoke(initial, config)
             if state.get("failure") and self.handoff_handler:
-                state["final"] = self.handoff_handler(context, state["failure"])["message"]
+                handoff = self.handoff_handler(context, state["failure"])
+                if state["failure"] in {"model_empty_response", "model_output_truncated", "model_response_refused"}:
+                    state["final"] += "\n工单已转交人工支持，等待专员接手；问题尚未标记为解决。" if state["final"].startswith("模型") else "\n" + handoff["message"]
+                else:
+                    state["final"] = handoff["message"]
             else:
                 current = self.repository.get_case(context)
                 if current.status == "investigating":

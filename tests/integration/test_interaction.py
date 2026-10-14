@@ -12,12 +12,32 @@ from test_api import application, login
 from test_workflow import ScriptModel, setup, tool
 
 
+def test_response_failure_is_visible_in_api_activity_and_diagnostics(application):
+    client, runtime = application
+    runtime.agent.model = ScriptModel([ModelReply(finish_reason="length", output_tokens=4096, reasoning_tokens=4096), ModelReply()])
+    headers = login(client)
+    case_id = client.post('/cases', headers=headers).json()['case_id']
+    path = f'/cases/{case_id}'
+    response = client.post(path + '/messages', json={'text': 'Cannot sign into Okta.'}, headers=headers)
+    assert response.status_code == 200
+    assert response.json()['failure'] == 'model_empty_response'
+    assert response.json()['case']['status'] == 'escalated'
+    activity = client.get(path + '/activity', headers=headers).json()['events']
+    assert len([e for e in activity if e['event'] == 'model_response_retry']) == 1
+    assert all(e['status'] == 'error' for e in activity if e['event'] == 'model_call')
+    diagnostics = client.get(path + '/diagnostics', headers=headers).json()['events']
+    calls = [e for e in diagnostics if e['event'] == 'model_call']
+    assert calls[0]['finish_reason'] == 'length' and calls[0]['reasoning_tokens'] == 4096
+    assert calls[1]['max_output_tokens'] == 8192
+    assert client.post(path + '/messages', json={'text': 'I already told you.'}, headers=headers).status_code == 409
+
+
 def test_progress_is_visible_while_model_is_blocked_and_scoped(application, caplog):
     client, runtime = application
     entered, release = threading.Event(), threading.Event()
 
     class SlowModel:
-        def respond(self, messages, schemas):
+        def respond(self, messages, schemas, *, max_output_tokens=None):
             entered.set()
             assert release.wait(10)
             return ModelReply(text="Which application fails?")
