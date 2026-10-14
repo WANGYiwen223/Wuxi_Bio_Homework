@@ -15,7 +15,7 @@ def test_handoff_preserves_context_and_creation_is_not_acknowledgement(seeded_db
     case = repo.get_case(ctx)
     repo.save_case(ctx, transition(case, case.status, ctx.clock.now(), missing_information=["Whether all jobs are affected"], tool_errors=[{"code": "TIMEOUT"}], attempted_fixes=[{"operation": "guided_check", "outcome": "failed"}]))
     service = HandoffService(repo)
-    result = service.create(ctx, "Production repair requires SRE")
+    result = service.create(ctx, "Production repair requires SRE", category="pipeline_infrastructure")
     assert result["status"] == "queued"
     reviewer = repo.create_demo_session("EMP-007")
     package = service.queue(reviewer)[0]
@@ -33,7 +33,7 @@ def test_employee_cannot_read_queue_and_specialists_are_group_scoped(seeded_db, 
     repo, ctx, _, _, _ = setup(seeded_db, tmp_path)
     repo.append_message(ctx, "employee", "I suspect an account compromise")
     service = HandoffService(repo)
-    result = service.create(ctx, "Potential breach")
+    result = service.create(ctx, "Potential breach", category="security_incident")
     with pytest.raises(AccessDenied):
         service.queue(ctx.session_id)
     it = repo.create_demo_session("EMP-007")

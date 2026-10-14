@@ -12,6 +12,7 @@ from pydantic import Field, ValidationError
 
 from helpdesk.domain.contracts import ActionRequest, new_id
 from helpdesk.domain.lifecycle import transition
+from helpdesk.escalation.service import IssueCategory
 from helpdesk.models.client import ModelFailure
 from helpdesk.observability.redaction import redact
 from helpdesk.observability.presentation import TOOL_LABELS, present_answer
@@ -27,6 +28,7 @@ class FinishArgs(Args):
 
 class HandoffArgs(Args):
     reason: str = Field(min_length=1, max_length=1000)
+    category: IssueCategory = Field(description="The employee's actual problem class, never the services you happened to inspect")
 
 
 class ConsentArgs(Args):
@@ -75,7 +77,7 @@ EXTRA_TOOLS = {
     "finish_turn": (FinishArgs, "End the turn with a focused question or evidence-based guidance. Cannot mark a case resolved."),
     "request_consent": (ConsentArgs, "Ask for explicit employee consent through the UI before proposing a self-service action."),
     "propose_action": (ProposeArgs, "Propose a scoped mock action. unlock: resource_id=okta, environment=INTERNAL, parameters={}. VPN refresh: resource_id=vpn, environment=INTERNAL, parameters={device_id: assigned DEV-* ID}. Grant: resource_id=snowflake-prod/grafana-internal, parameters={role: reader/viewer, business_justification: reason}. NEVER include employee_id, consent or authorization facts. Backend policy decides."),
-    "request_handoff": (HandoffArgs, "Create an evidence-preserving handoff to human IT. Do not claim human acknowledgement."),
+    "request_handoff": (HandoffArgs, "Create an evidence-preserving handoff to human IT. Pick category from the employee's actual problem: security_incident (lost/stolen device, phishing, exposed credentials), network_connectivity (VPN/connectivity), pipeline_infrastructure (jobs/builds/service outages), or a helpdesk class (account_access, peripheral_hardware, software_install, access_inquiry, other). The backend assigns the queue. Do not claim human acknowledgement."),
     "record_case_requirements": (RequirementsArgs, "Record every requested resource for a multi-resource access issue before proposing grants. These facts never authorize execution."),
 }
 
@@ -184,7 +186,7 @@ class DiagnosticAgent:
                             if output.get("stop"):
                                 stop, final = True, output["message"]
                         elif name == "request_handoff" and self.handoff_handler:
-                            output = self.handoff_handler(context, redact(parsed.reason))
+                            output = self.handoff_handler(context, redact(parsed.reason), category=parsed.category)
                             final, stop = output["message"], True
                         elif name == "record_case_requirements":
                             case = self.repository.get_case(context)

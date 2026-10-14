@@ -1,17 +1,69 @@
 """Human handoff built from persisted facts, never a generated success claim."""
 
 import json
+from typing import Literal
 
 from helpdesk.domain.contracts import EvidenceRecord, Message, new_id
 from helpdesk.observability.redaction import redact
 from helpdesk.storage.repository import AccessDenied
+
+IssueCategory = Literal[
+    "security_incident", "network_connectivity", "pipeline_infrastructure",
+    "account_access", "peripheral_hardware", "software_install", "access_inquiry", "other",
+]
+
+# Queue assignment is backend policy. The model declares what the problem IS; it never
+# picks a queue, and evidence or keyword substrings never reroute the case (P2).
+ISSUE_GROUPS = {
+    "security_incident": "security",
+    "network_connectivity": "network",
+    "pipeline_infrastructure": "sre",
+    "account_access": "helpdesk",
+    "peripheral_hardware": "helpdesk",
+    "software_install": "helpdesk",
+    "access_inquiry": "helpdesk",
+    "other": "helpdesk",
+}
+
+# Phrase-level safety net over employee text; it can only escalate to security.
+_SECURITY_PHRASES = (
+    "was stolen", "stolen from", "lost my phone", "lost my laptop", "lost my company phone",
+    "phishing", "clicked the link", "typed my password", "entered my password", "suspicious login",
+)
+_NEGATIONS = ("no ", "not ", "n't", "never ")
+
+
+def _reports_security(text: str) -> bool:
+    for phrase in _SECURITY_PHRASES:
+        start = 0
+        while True:
+            hit = text.find(phrase, start)
+            if hit == -1:
+                break
+            if not any(n in text[max(0, hit - 12):hit] for n in _NEGATIONS):
+                return True
+            start = hit + 1
+    return False
+
+
+def route_group(category: IssueCategory | None, employee_text: str) -> tuple[str, str]:
+    """Return (support_group, routing_basis). Internal fallbacks triage to helpdesk."""
+    if category is None:
+        group, basis = "helpdesk", "internal_fallback"
+    else:
+        if category not in ISSUE_GROUPS:
+            raise ValueError(f"Unknown issue category: {category}")
+        group, basis = ISSUE_GROUPS[category], "model_declared"
+    if group != "security" and _reports_security(employee_text):
+        group, basis = "security", "backend_override"
+    return group, basis
 
 
 class HandoffService:
     def __init__(self, repository):
         self.repository = repository
 
-    def create(self, context, reason: str):
+    def create(self, context, reason: str, category: IssueCategory | None = None):
         with self.repository.transaction() as db:
             case = self.repository._owned_case(db, context)
             if case.handoff_id:
@@ -23,12 +75,11 @@ class HandoffService:
             evidence = [EvidenceRecord.model_validate_json(row[0]) for row in db.execute("SELECT payload FROM evidence WHERE json_extract(payload,'$.case_id')=? ORDER BY rowid", (case.case_id,))]
             symptoms = [m.text for m in messages if m.role == "employee"]
             issue = symptoms[0] if symptoms else "Investigation requires human review"
-            text = (" ".join(symptoms) + " " + reason).lower()
-            services = {e.facts.get("service_id") for e in evidence if isinstance(e.facts, dict)}
-            group = "security" if any(s in text for s in ["breach", "compromise", "suspicious login"]) else "sre" if {"jenkins", "tableau"} & services else "network" if "vpn" in services else "helpdesk"
+            group, basis = route_group(category, " ".join(symptoms).lower())
             package = {
                 "handoff_id": new_id("HANDOFF"), "case_id": case.case_id,
                 "employee_id": context.employee_id, "support_group": group,
+                "issue_category": category, "routing_basis": basis,
                 "status": "queued", "created_at": context.clock.now().isoformat(),
                 "issue_summary": redact(issue), "employee_updates": symptoms[1:],
                 "impact": case.facts.get("impact", "Not yet confirmed"),
