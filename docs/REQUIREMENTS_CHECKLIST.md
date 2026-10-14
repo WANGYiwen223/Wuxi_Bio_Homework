@@ -1,6 +1,6 @@
 # Candidate Instructions: Requirement-by-Requirement Audit
 
-Audited on **2026-10-12**, condensed **2026-10-14**, against [the supplied HTML](../agentic_ai_take_home_candidate_instructions_v20260421_01.html), current code/fixtures, tests, and saved live reports. Section order follows the HTML. Optional production integrations are not treated as missing mandatory features.
+Audited on **2026-10-12**, condensed **2026-10-14**, against the supplied assignment HTML (not redistributed in this repository), current code/fixtures, tests, and saved live reports. Section order follows the HTML. Optional production integrations are not treated as missing mandatory features.
 
 **Met** = the item has the evidence described. **Partial** = implementation or evidence exists, but an important part is missing/unverified. **Goal unproven** = the proposed product outcome has not been measured in real use. **Optional/deferred** = the HTML permits it as additional design work. A prompt instruction is not equated with verified model behavior.
 
