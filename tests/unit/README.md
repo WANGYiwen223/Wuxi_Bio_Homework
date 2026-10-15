@@ -1,3 +1,5 @@
 # Unit checks
 
-Reserved for the corresponding implementation milestone. Fixture integrity is currently checked by `python scripts/demo_data.py validate`.
+Deterministic checks of domain contracts, fixture integrity, and model adapter
+responses/settings with scripted doubles — no provider calls. Fixture integrity
+is also covered by `python scripts/demo_data.py validate`.

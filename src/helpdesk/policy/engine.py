@@ -134,10 +134,13 @@ class PolicyEngine:
         if action.operation not in {"create_handoff", "modify_production_network"}:
             documented = any(e.source.source_type == "knowledge" and isinstance(e.facts, dict) and e.facts.get("service_id") == service_id for e in chosen)
             if not documented:
-                return denied("Relevant documented procedure evidence is required")
+                return denied(f"Relevant documented procedure evidence is required: cite the evidence id from search_knowledge/get_runbook for a knowledge article whose service_id is '{service_id}'")
             required_kind = {"unlock_demo_account": "account", "refresh_demo_vpn_profile": "diagnostic", "grant_demo_access": "employee"}[action.operation]
-            if not any(e.source.source_type == required_kind and isinstance(e.facts, dict) and (e.facts.get("employee_id") == context.employee_id if required_kind == "employee" else e.facts.get("service_id") == service_id) for e in chosen):
-                return denied("Relevant observed target evidence is required")
+            observed = any(e.source.source_type == required_kind and isinstance(e.facts, dict) and (e.facts.get("employee_id") == context.employee_id if required_kind == "employee" else e.facts.get("service_id") == service_id) for e in chosen)
+            if not observed:
+                hint = {"account": f"account evidence for this employee's '{service_id}' account", "diagnostic": f"diagnostic evidence for service '{service_id}' from get_diagnostic_snapshot", "employee": f"employee evidence for {context.employee_id} from get_employee_context"}[required_kind]
+                return denied(f"Relevant observed target evidence is required: cite {hint}; call the tool now and include its evidence id in evidence_ids")
+
 
         matches = [rule for rule in policy["rules"] if rule["operation"] == action.operation and (action.resource_id in rule["resource_scope"] or "*" in rule["resource_scope"]) and all(k in facts and type(facts[k]) is type(v) and facts[k] == v for k, v in rule["conditions"].items())]
         if not matches:

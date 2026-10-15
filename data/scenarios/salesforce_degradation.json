@@ -1,0 +1,39 @@
+{
+  "scenario_id": "salesforce_degradation",
+  "version": "2.0",
+  "clock": "2026-10-12T10:00:00+08:00",
+  "overrides": {
+    "services": [
+      {
+        "service_id": "salesforce",
+        "health": "degraded",
+        "region": "us-central",
+        "affected_locations": [
+          "Chicago",
+          "Remote-US"
+        ],
+        "incident_ids": [
+          "INC-DEMO-004"
+        ]
+      }
+    ],
+    "incidents": [
+      {
+        "incident_id": "INC-DEMO-004",
+        "service_ids": [
+          "salesforce"
+        ],
+        "status": "investigating",
+        "affected_locations": [
+          "Chicago",
+          "Remote-US"
+        ],
+        "started_at": "2026-10-11T15:20:00+08:00",
+        "resolved_at": null,
+        "summary": "Us-central users report extreme application latency since yesterday; provider cause not yet confirmed."
+      }
+    ]
+  },
+  "faults": [],
+  "conditions": []
+}

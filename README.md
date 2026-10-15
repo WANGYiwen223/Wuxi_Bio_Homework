@@ -57,7 +57,7 @@ Core tradeoff: the model investigates and explains while code owns authority and
 | 过期的 VPN 配置文件<br>Stale VPN profile | 确认并完成当前故障排查后刷新指定受管设备的模拟配置文件；核验并请员工反馈。<br>Refresh the assigned managed device's simulated profile after consent and a current outage check; verify and request feedback. | 存在适用的区域故障、证据冲突、问题持续。<br>Applicable regional outage, conflicting evidence, persistent failure. |
 | 内部 Grafana 访问<br>Internal Grafana access | 通过策略检查后，为数据工程员工授予模拟内部查看者权限。<br>Grant a Data Engineering employee simulated internal viewer access after policy checks. | 不支持的角色、部门或范围。<br>Unsupported role, department, or scope. |
 | Snowflake 生产库访问<br>Snowflake production access | 准备只读权限提案；等待通讯录中直属经理的限定范围审批后再执行并核验。<br>Prepare a reader-access proposal; wait for the directory manager's scoped approval before executing and verifying. | 审批被拒/过期、写权限等被拒范围。审批与专员升级是两条不同路径。<br>Rejected/expired approval or denied scope. Approval is distinct from specialist escalation. |
-| Salesforce 变慢<br>Salesforce slowness | 查服务健康、检索操作手册与历史，提供有依据的指导或转交。<br>Query health, retrieve the runbook and history, offer supported guidance or handoff. | 大范围/持续服务问题。专属场景与实时评估尚待补充。<br>Widespread/persistent problems. A dedicated scenario and live evaluation are still missing. |
+| Salesforce 变慢<br>Salesforce slowness | 查服务健康、检索操作手册与历史，提供有依据的指导或转交。<br>Query health, retrieve the runbook and history, offer supported guidance or handoff. | 大范围/持续服务问题；专属场景已通过实时评估（区域证据 + 带上下文转交，无本地变更）。<br>Widespread/persistent problems; dedicated scenario passed live evaluation (regional evidence, contextual handoff, no local mutation). |
 | Jenkins/Snowflake/Tableau 故障<br>Jenkins/Snowflake/Tableau incident | 收集维护、构建、服务健康与下游报表证据；区分"假设"与"已确认原因"。<br>Collect maintenance, build, health, and downstream-report evidence; distinguish hypothesis from confirmed cause. | 生产网络/凭据修复转交 SRE；系统没有生产修复类工具。<br>Production network/credential repair goes to SRE; there is no production-repair tool. |
 
 默认 fail closed：操作不受支持或缺少必要证据时后端拒绝；预算耗尽、重复无效调用、工具/模型故障或证据不足同样触发交接。交接包含初始问题、员工补充、证据及来源时间、已尝试修复、错误、未决问题与升级原因，按上下文路由到 IT 服务台、网络、SRE 或安全团队。`queued` 与 `acknowledged` 是两个不同状态，都不代表问题已修复。
@@ -115,45 +115,31 @@ Open <http://127.0.0.1:8000>. The seed output lists which employees have locked 
 
 ```powershell
 .\.venv\Scripts\python.exe -m pytest -q                 # 确定性测试 / deterministic tests
-.\.venv\Scripts\python.exe scripts/run_evaluation.py --list   # 预览 7 类问题 × 2 员工 = 14 用例 / preview the matrix
+.\.venv\Scripts\python.exe scripts/run_evaluation.py --list   # 预览 8 类问题 × 2 员工 = 16 用例 / preview the matrix
 .\.venv\Scripts\python.exe scripts/run_evaluation.py          # 实时评估，消耗服务商 token / live run, spends provider tokens
 ```
 
-**确定性测试**使用脚本化模型与隔离数据库，覆盖身份隔离、来源追溯、策略优先级、限定范围审批、事务幂等、核验、交接上下文与 API 边界：2026-10-14 **121 个测试全部通过**。**实时评估**用真实模型、独立灌入的数据库与模拟的员工/经理反馈；评分检查持久化的证据、执行效果、核验与交接记录，而不是接受助手自称的"成功"。
+**确定性测试**使用脚本化模型与隔离数据库，覆盖身份隔离、来源追溯、策略优先级、限定范围审批、事务幂等、核验、交接上下文与 API 边界：2026-10-15 **121 个测试全部通过**。**实时评估**用真实模型、独立灌入的数据库与模拟的员工/经理反馈；评分检查持久化的证据、执行效果、核验与交接记录，而不是接受助手自称的"成功"。
 
-**Deterministic tests** use scripted models and isolated databases, covering identity isolation, provenance, policy precedence, scoped approvals, transactional idempotency, verification, handoff context, and API boundaries: **121 passed on 2026-10-14**. **Live evaluations** use the real model, independently seeded databases, and simulated employee/manager feedback; scoring examines persisted evidence, effects, verification, and handoff records rather than the assistant's own claim of success.
+**Deterministic tests** use scripted models and isolated databases, covering identity isolation, provenance, policy precedence, scoped approvals, transactional idempotency, verification, handoff context, and API boundaries: **121 passed on 2026-10-15**. **Live evaluations** use the real model, independently seeded databases, and simulated employee/manager feedback; scoring examines persisted evidence, effects, verification, and handoff records rather than the assistant's own claim of success.
 
-2026-10-14 新版 14 用例实时矩阵已运行：**14 中 13 通过**（含两个账号解锁用例；1 个证据冲突用例轮次用尽时仍等待员工输入，未通过交接检查，失败已保留在报告中）。下表是上一版夹具各场景最近一次试验的历史结果（报告文件本地已不保留，非一次基准测试，也不代表生产成功率）：
+2026-10-15 新版 16 用例实时矩阵已运行：**16 全部通过**（8 类问题 × 2 员工，含两个账号解锁、两个证据冲突与两个 Salesforce 变慢用例；单次矩阵运行，非基准测试，也不代表生产成功率）。
 
-The version-2 14-case live matrix ran on 2026-10-14: **13 of 14 passed** (including both account-unlock cases; one conflicting-evidence case ended awaiting employee input and failed its handoff check — retained in the report). The table below is version-1 history: the most recent saved trial per scenario (report files no longer kept locally; separate runs, not one benchmark, not a production success rate):
-
-| 场景 Scenario | 结果 Result | 秒数 Seconds |
-|---|---|---:|
-| 账号解锁 Account unlock | 失败；服务商在工具调用前不可用（更早一次试验曾成功解决）<br>Failed: provider unavailable before tools (an earlier trial resolved) | 22.67 |
-| VPN 配置过期 Stale VPN profile | 通过；模拟刷新 + 核验 + 员工确认<br>Passed: simulated refresh, verification, confirmation | 32.33 |
-| 区域 VPN 故障 Regional VPN outage | 通过；带上下文交接，无系统变更<br>Passed: contextual handoff, no mutation | 89.20 |
-| Snowflake/Grafana 访问 Access | 通过；两个资源均覆盖，生产权限审批已记录<br>Passed: both resources covered, PROD approval recorded | 58.08 |
-| 维护后管道故障 Pipeline after maintenance | 通过；变更/构建/报表证据齐全，转交 SRE<br>Passed: change/build/report evidence, SRE handoff | 31.46 |
-| VPN 证据冲突 Conflicting evidence | 结果检查通过；后续模型失败触发降级交接<br>Outcome checks passed; later model failure caused fallback | 61.27 |
-| 工具超时 Tool timeout | 结果检查通过；工具错误保留在交接中<br>Outcome checks passed; tool errors preserved in handoff | 59.65 |
-
-失败案例：早期过宽的操作 schema 导致资源/参数选错——收紧 schema 修复了这类契约性失败，后端策略则始终拒绝非法操作；服务商超时与不可用仍是独立的失败模式。管道场景复测消耗 3 次模型调用、13 次工具调用、19,957 输入 / 1,300 输出 token。
-
-Failure cases: an early over-broad action schema caused wrong resource/parameter choices — stricter schemas fixed those contract failures while backend policy kept rejecting invalid actions; provider timeouts and unavailability remain a separate failure mode. The pipeline retest consumed 3 model calls, 13 tool calls, and 19,957 input / 1,300 output tokens.
+The version-2 16-case live matrix ran on 2026-10-15: **all 16 passed** (8 problem types × 2 employees, including both account-unlock, both conflicting-evidence, and both Salesforce-degradation cases; a single matrix run, not a benchmark, not a production success rate).
 
 ## 假设与取舍 / Assumptions and tradeoffs
 
 - 夹具身份选择器与合成经理/专员角色使本地演示可行；这不是生产级访问控制。<br>Fixture identity selection and synthetic manager/specialist roles enable a local demo; this is not production access control.
 - 词法检索 + SQLite 中的 JSON 记录便于检查小语料；更大语料需要检索质量评估、索引与新鲜度控制。<br>Lexical retrieval and JSON records in SQLite keep the small corpus inspectable; larger corpora would need retrieval-quality evaluation, indexing, and freshness controls.
+- 解决历史保持静态：案例关闭后不回写新的历史记录，避免未经核验的自产结论混入检索语料、污染后续诊断；要形成知识闭环需先加人工审核门控。<br>Resolution history stays static: closed cases are not written back as new entries, keeping unverified self-produced conclusions out of the retrieval corpus where they would contaminate later diagnoses; closing the knowledge loop would require a human review gate first.
 - 固定时钟与隔离运行保证可复现，但无法模拟持续变化的企业服务。<br>A fixed clock and isolated runs make scenarios reproducible but cannot mimic continuously changing enterprise services.
 - 自助执行仅限三种模拟操作；指导可覆盖更多有文档的问题，但不支持的修复必须交人。<br>Self-service execution is limited to three simulated operations; guidance covers more documented issues, but unsupported repairs require a human.
 - 同步串行轮次 + 轮询进度简化了本地状态安全；无逐 token 流式、无摘要压缩、无分布式协调；token/调用预算只限制工作量，不强制执行金额预算或案例截止时限。<br>Synchronous serialized turns with polled progress simplify local state safety; no token streaming, summarization, or distributed coordination; token/call budgets bound work, not monetary cost or a whole-case deadline.
 
 ## 有更多时间会改进什么 / Improvements with more time
 
-1. 把 Salesforce/芝加哥变慢做成专属故障场景并补实时评估（操作手册、状态与历史已存在，缺端到端证据）。<br>Add the Salesforce/Chicago slowdown as a dedicated scenario with live evaluation (runbook, status, and history exist; end-to-end evidence is missing).
-2. 针对含糊/超范围请求、缺失操作手册、员工拒绝授权与对抗性来源文本，补真实模型的多轮试验。<br>Add real-model multi-turn trials for vague/out-of-scope requests, missing runbooks, declined consent, and adversarial source text.
-3. 服务商可靠性：重复试验、记录失败分类与时延分布、评估不重放操作的重试策略。<br>Provider reliability: repeated trials, failure categories, latency distributions, and retry policies that never replay mutations.
-4. 语义级评估：澄清质量、引用有效性、不确定性表达与交接准确性（目前笼统的失败交接也能通过结构性升级检查）。<br>Semantic evaluation: clarification quality, citation validity, uncertainty expression, and handoff accuracy (a generic failure handoff currently passes structural escalation checks).
-5. 宣称"多数案例可解决"或"两分钟 SLA"前，先测量真实员工结果、响应时间与金钱成本。<br>Measure real employee outcomes, response time, and monetary cost before claiming majority resolution or a two-minute SLA.
-6. 生产化方向：SSO 替代夹具身份、最小权限的目录/状态/IT 操作 API、Slack/Teams 入口、携带完整证据的 ServiceNow 交接、密钥管理与数据保留策略。<br>Production direction: SSO instead of fixture identities, least-privilege directory/status/IT-action APIs, Slack/Teams delivery, ServiceNow handoff with full evidence, secret management, and data retention.
+1. 针对含糊/超范围请求、缺失操作手册、员工拒绝授权与对抗性来源文本，补真实模型的多轮试验。<br>Add real-model multi-turn trials for vague/out-of-scope requests, missing runbooks, declined consent, and adversarial source text.
+2. 服务商可靠性：重复试验、记录失败分类与时延分布、评估不重放操作的重试策略。<br>Provider reliability: repeated trials, failure categories, latency distributions, and retry policies that never replay mutations.
+3. 语义级评估：澄清质量、引用有效性、不确定性表达与交接准确性（目前笼统的失败交接也能通过结构性升级检查）。<br>Semantic evaluation: clarification quality, citation validity, uncertainty expression, and handoff accuracy (a generic failure handoff currently passes structural escalation checks).
+4. 宣称"多数案例可解决"或"两分钟 SLA"前，先测量真实员工结果、响应时间与金钱成本。<br>Measure real employee outcomes, response time, and monetary cost before claiming majority resolution or a two-minute SLA.
+5. 生产化方向：SSO 替代夹具身份、最小权限的目录/状态/IT 操作 API、Slack/Teams 入口、携带完整证据的 ServiceNow 交接、密钥管理与数据保留策略。<br>Production direction: SSO instead of fixture identities, least-privilege directory/status/IT-action APIs, Slack/Teams delivery, ServiceNow handoff with full evidence, secret management, and data retention.

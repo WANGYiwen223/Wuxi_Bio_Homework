@@ -31,6 +31,7 @@ The resources include three access-grant targets and two shared diagnostic targe
 - `account_lockout` / `vpn_stale_profile`: inject the personal condition into the selected employees.
 - `production_access`: healthy systems; policies decide each request using the actual employee's department and manager.
 - `vpn_regional_outage` / `conflicting_evidence`: a shared Chicago/Remote-US VPN incident with fresh or conflicting status evidence; location determines whether it applies.
+- `salesforce_degradation`: a shared Chicago/Remote-US Salesforce incident still under investigation; location determines whether the degradation evidence applies.
 - `pipeline_maintenance`: shared Jenkins build failure and stale Tableau report after a change window.
 - `tool_timeout`: stale profiles plus bounded simulated status-tool timeouts.
 - `mixed_issues` (default): overlapping locked accounts (4 employees) and stale profiles (5), plus a shared pipeline incident; application access can be requested independently.
@@ -58,6 +59,6 @@ Private accounts and devices remain employee-owned. Jenkins `jenkins-sales-etl` 
 
 ## Evaluation
 
-`tests/conversations/expected_outcomes.json` selects two example employees for each of seven problem types: 14 independent live trials. These are test actors, not template restrictions. `scripts/run_evaluation.py --list` previews the matrix without model calls; `--scenarios` and `--employees` filter it. Expectations remain outside agent context.
+`tests/conversations/expected_outcomes.json` selects two example employees for each of eight problem types: 16 independent live trials. These are test actors, not template restrictions. `scripts/run_evaluation.py --list` previews the matrix without model calls; `--scenarios` and `--employees` filter it. Expectations remain outside agent context.
 
 Offline tests cover reusable injection across all eight employees, reproducible overlapping conditions, personal repair isolation, shared-resource authorization, regional effects, and department/manager-dependent access decisions. A successful offline test does not establish live model quality on the new matrix.

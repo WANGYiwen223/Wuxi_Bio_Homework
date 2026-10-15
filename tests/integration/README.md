@@ -1,3 +1,5 @@
 # Integration checks
 
-Reserved for the corresponding implementation milestone. Fixture integrity is currently checked by `python scripts/demo_data.py validate`.
+End-to-end checks over isolated seeded databases and scripted models: API
+boundaries, read tools, repository, policy approvals, resolution, handoff
+routing, interaction activity, multi-employee data, and workflow recovery.
