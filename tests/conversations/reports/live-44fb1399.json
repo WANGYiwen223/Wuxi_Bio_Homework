@@ -1,0 +1,1746 @@
+{
+  "mode": "live_model",
+  "note": "Synthetic employee feedback and manager decisions; actual model-selected tool calls. Not a production resolution-rate benchmark.",
+  "results": [
+    {
+      "scenario": "vpn_stale_profile",
+      "employee_id": "EMP-001",
+      "fixture_version": "2.0",
+      "mode": "live_model_with_simulated_employee_and_reviewer",
+      "status": "resolved",
+      "passed": true,
+      "checks": {
+        "multiple_sources": true,
+        "resolved_has_verification": true,
+        "escalated_has_context": true,
+        "resolved_routine_issue": true
+      },
+      "duration_seconds": 53.66,
+      "model_calls": 6,
+      "tool_calls": 8,
+      "input_tokens": 37786,
+      "output_tokens": 1749,
+      "case_id": "CASE-11afb1a9892744f780d3d2364b2aa3fc",
+      "run_directory": "C:\\Users\\wangy\\Documents\\intern_2026\\Wuxi_Bio_Homework\\var\\runs\\eval-vpn_stale_profile-EMP-001-01a8d9aa",
+      "turns": [
+        {
+          "message": "Your managed VPN client is running profile revision 1 while the current required revision is 2, and your device logs attribute the recurring disconnects (roughly every 12 minutes) to this mismatch. Refreshing the profile will update your VPN configuration to the current revision and should stop the disconnect cycles. The refresh applies to your assigned device (DEV-001) only.\nPlease use the permission buttons below to continue or decline.",
+          "citations": [],
+          "case": {
+            "case_id": "CASE-11afb1a9892744f780d3d2364b2aa3fc",
+            "employee_id": "EMP-001",
+            "created_at": "2026-10-12T10:00:00+08:00",
+            "updated_at": "2026-10-12T10:00:00+08:00",
+            "version": 1,
+            "status": "awaiting_employee",
+            "facts": {
+              "pending_consent": {
+                "operation": "refresh_demo_vpn_profile",
+                "explanation": "Your managed VPN client is running profile revision 1 while the current required revision is 2, and your device logs attribute the recurring disconnects (roughly every 12 minutes) to this mismatch. Refreshing the profile will update your VPN configuration to the current revision and should stop the disconnect cycles. The refresh applies to your assigned device (DEV-001) only."
+              }
+            },
+            "missing_information": [],
+            "attempted_fixes": [],
+            "tool_errors": [],
+            "verification": null,
+            "handoff_id": null,
+            "investigation_steps": 0
+          },
+          "metrics": {
+            "model_calls": 3,
+            "tool_calls": 5,
+            "input_tokens": 15600,
+            "output_tokens": 970,
+            "duration_ms": 40514
+          },
+          "failure": null
+        },
+        {
+          "message": "The simulated action completed. Please use the feedback control to confirm whether the issue is fixed.",
+          "citations": [],
+          "case": {
+            "case_id": "CASE-11afb1a9892744f780d3d2364b2aa3fc",
+            "employee_id": "EMP-001",
+            "created_at": "2026-10-12T10:00:00+08:00",
+            "updated_at": "2026-10-12T10:00:00+08:00",
+            "version": 3,
+            "status": "awaiting_verification",
+            "facts": {
+              "consent_operations": [
+                "refresh_demo_vpn_profile"
+              ],
+              "last_consent": {
+                "operation": "refresh_demo_vpn_profile",
+                "allowed": true
+              },
+              "last_proposal_id": "PROP-a9889e2da25d443e869bdb1b84717ff0"
+            },
+            "missing_information": [],
+            "attempted_fixes": [
+              {
+                "action_id": "ACTION-aab61ccf24504ed0be95cb59b9b5c25a",
+                "proposal_id": "PROP-a9889e2da25d443e869bdb1b84717ff0",
+                "case_id": "CASE-11afb1a9892744f780d3d2364b2aa3fc",
+                "employee_id": "EMP-001",
+                "operation": "refresh_demo_vpn_profile",
+                "status": "success",
+                "details": {
+                  "device_id": "DEV-001",
+                  "profile_revision": 2
+                },
+                "executed_at": "2026-10-12T10:00:00+08:00"
+              }
+            ],
+            "tool_errors": [],
+            "verification": null,
+            "handoff_id": null,
+            "investigation_steps": 0
+          },
+          "metrics": {
+            "model_calls": 3,
+            "tool_calls": 3,
+            "input_tokens": 22186,
+            "output_tokens": 779,
+            "duration_ms": 13092
+          },
+          "failure": null
+        }
+      ]
+    },
+    {
+      "scenario": "vpn_stale_profile",
+      "employee_id": "EMP-004",
+      "fixture_version": "2.0",
+      "mode": "live_model_with_simulated_employee_and_reviewer",
+      "status": "resolved",
+      "passed": true,
+      "checks": {
+        "multiple_sources": true,
+        "resolved_has_verification": true,
+        "escalated_has_context": true,
+        "resolved_routine_issue": true
+      },
+      "duration_seconds": 35.0,
+      "model_calls": 7,
+      "tool_calls": 9,
+      "input_tokens": 44614,
+      "output_tokens": 1927,
+      "case_id": "CASE-7795c7a511244065b4dd5caab675bd00",
+      "run_directory": "C:\\Users\\wangy\\Documents\\intern_2026\\Wuxi_Bio_Homework\\var\\runs\\eval-vpn_stale_profile-EMP-004-656c6bb5",
+      "turns": [
+        {
+          "message": "Your VPN client is running an outdated profile (revision 1) while the current required version is 2, which is causing the periodic disconnects. Refreshing the managed VPN profile on your device (DEV-004, macOS) will push the current profile and should stabilize your session. This will briefly drop your existing VPN connection as the new profile applies.\nPlease use the permission buttons below to continue or decline.",
+          "citations": [],
+          "case": {
+            "case_id": "CASE-7795c7a511244065b4dd5caab675bd00",
+            "employee_id": "EMP-004",
+            "created_at": "2026-10-12T10:00:00+08:00",
+            "updated_at": "2026-10-12T10:00:00+08:00",
+            "version": 1,
+            "status": "awaiting_employee",
+            "facts": {
+              "pending_consent": {
+                "operation": "refresh_demo_vpn_profile",
+                "explanation": "Your VPN client is running an outdated profile (revision 1) while the current required version is 2, which is causing the periodic disconnects. Refreshing the managed VPN profile on your device (DEV-004, macOS) will push the current profile and should stabilize your session. This will briefly drop your existing VPN connection as the new profile applies."
+              }
+            },
+            "missing_information": [],
+            "attempted_fixes": [],
+            "tool_errors": [],
+            "verification": null,
+            "handoff_id": null,
+            "investigation_steps": 0
+          },
+          "metrics": {
+            "model_calls": 3,
+            "tool_calls": 5,
+            "input_tokens": 15083,
+            "output_tokens": 1016,
+            "duration_ms": 18123
+          },
+          "failure": null
+        },
+        {
+          "message": "The simulated action completed. Please use the feedback control to confirm whether the issue is fixed.",
+          "citations": [],
+          "case": {
+            "case_id": "CASE-7795c7a511244065b4dd5caab675bd00",
+            "employee_id": "EMP-004",
+            "created_at": "2026-10-12T10:00:00+08:00",
+            "updated_at": "2026-10-12T10:00:00+08:00",
+            "version": 3,
+            "status": "awaiting_verification",
+            "facts": {
+              "consent_operations": [
+                "refresh_demo_vpn_profile"
+              ],
+              "last_consent": {
+                "operation": "refresh_demo_vpn_profile",
+                "allowed": true
+              },
+              "last_proposal_id": "PROP-2b93add0392b4b6b87c145042b59c50a"
+            },
+            "missing_information": [],
+            "attempted_fixes": [
+              {
+                "action_id": "ACTION-28f2c0fb8ce14123ae6aac051e2a27f6",
+                "proposal_id": "PROP-2b93add0392b4b6b87c145042b59c50a",
+                "case_id": "CASE-7795c7a511244065b4dd5caab675bd00",
+                "employee_id": "EMP-004",
+                "operation": "refresh_demo_vpn_profile",
+                "status": "success",
+                "details": {
+                  "device_id": "DEV-004",
+                  "profile_revision": 2
+                },
+                "executed_at": "2026-10-12T10:00:00+08:00"
+              }
+            ],
+            "tool_errors": [],
+            "verification": null,
+            "handoff_id": null,
+            "investigation_steps": 0
+          },
+          "metrics": {
+            "model_calls": 4,
+            "tool_calls": 4,
+            "input_tokens": 29531,
+            "output_tokens": 911,
+            "duration_ms": 16810
+          },
+          "failure": null
+        }
+      ]
+    },
+    {
+      "scenario": "vpn_regional_outage",
+      "employee_id": "EMP-002",
+      "fixture_version": "2.0",
+      "mode": "live_model_with_simulated_employee_and_reviewer",
+      "status": "escalated",
+      "passed": true,
+      "checks": {
+        "multiple_sources": true,
+        "resolved_has_verification": true,
+        "escalated_has_context": true,
+        "appropriate_handoff": true,
+        "no_unauthorized_mutation": true
+      },
+      "duration_seconds": 72.94,
+      "model_calls": 3,
+      "tool_calls": 6,
+      "input_tokens": 17078,
+      "output_tokens": 4198,
+      "case_id": "CASE-f73c2cac2f7549fd920789c1e9050878",
+      "run_directory": "C:\\Users\\wangy\\Documents\\intern_2026\\Wuxi_Bio_Homework\\var\\runs\\eval-vpn_regional_outage-EMP-002-41d71b8b",
+      "turns": [
+        {
+          "message": "I queued your case for network with the investigation context. A specialist has not acknowledged it yet.",
+          "citations": [],
+          "case": {
+            "case_id": "CASE-f73c2cac2f7549fd920789c1e9050878",
+            "employee_id": "EMP-002",
+            "created_at": "2026-10-12T10:00:00+08:00",
+            "updated_at": "2026-10-12T10:00:00+08:00",
+            "version": 2,
+            "status": "escalated",
+            "facts": {},
+            "missing_information": [],
+            "attempted_fixes": [],
+            "tool_errors": [
+              {
+                "tool_name": "get_recent_changes",
+                "code": "NOT_FOUND"
+              }
+            ],
+            "verification": null,
+            "handoff_id": "HANDOFF-7bf9697a48924e50930c33cc756a2e65",
+            "investigation_steps": 0
+          },
+          "metrics": {
+            "model_calls": 3,
+            "tool_calls": 6,
+            "input_tokens": 17078,
+            "output_tokens": 4198,
+            "duration_ms": 72916
+          },
+          "failure": null
+        }
+      ]
+    },
+    {
+      "scenario": "vpn_regional_outage",
+      "employee_id": "EMP-004",
+      "fixture_version": "2.0",
+      "mode": "live_model_with_simulated_employee_and_reviewer",
+      "status": "escalated",
+      "passed": true,
+      "checks": {
+        "multiple_sources": true,
+        "resolved_has_verification": true,
+        "escalated_has_context": true,
+        "appropriate_handoff": true,
+        "no_unauthorized_mutation": true
+      },
+      "duration_seconds": 71.67,
+      "model_calls": 3,
+      "tool_calls": 4,
+      "input_tokens": 9283,
+      "output_tokens": 633,
+      "case_id": "CASE-80d87d66ab02449d92c67669aa097415",
+      "run_directory": "C:\\Users\\wangy\\Documents\\intern_2026\\Wuxi_Bio_Homework\\var\\runs\\eval-vpn_regional_outage-EMP-004-8792c028",
+      "turns": [
+        {
+          "message": "I queued your case for helpdesk with the investigation context. A specialist has not acknowledged it yet.",
+          "citations": [],
+          "case": {
+            "case_id": "CASE-80d87d66ab02449d92c67669aa097415",
+            "employee_id": "EMP-004",
+            "created_at": "2026-10-12T10:00:00+08:00",
+            "updated_at": "2026-10-12T10:00:00+08:00",
+            "version": 3,
+            "status": "escalated",
+            "facts": {},
+            "missing_information": [],
+            "attempted_fixes": [],
+            "tool_errors": [
+              {
+                "tool_name": "get_recent_changes",
+                "code": "NOT_FOUND"
+              },
+              {
+                "tool_name": "model",
+                "code": "APITimeoutError"
+              }
+            ],
+            "verification": null,
+            "handoff_id": "HANDOFF-46eea0179b174af5af756bfabf18bd11",
+            "investigation_steps": 0
+          },
+          "metrics": {
+            "model_calls": 3,
+            "tool_calls": 4,
+            "input_tokens": 9283,
+            "output_tokens": 633,
+            "duration_ms": 71645
+          },
+          "failure": "model_unavailable"
+        }
+      ]
+    },
+    {
+      "scenario": "salesforce_degradation",
+      "employee_id": "EMP-002",
+      "fixture_version": "2.0",
+      "mode": "live_model_with_simulated_employee_and_reviewer",
+      "status": "escalated",
+      "passed": true,
+      "checks": {
+        "multiple_sources": true,
+        "resolved_has_verification": true,
+        "escalated_has_context": true,
+        "appropriate_handoff": true,
+        "no_unauthorized_mutation": true
+      },
+      "duration_seconds": 79.6,
+      "model_calls": 5,
+      "tool_calls": 7,
+      "input_tokens": 27393,
+      "output_tokens": 4246,
+      "case_id": "CASE-1a96e9a80802459390104f5fd8b30f5c",
+      "run_directory": "C:\\Users\\wangy\\Documents\\intern_2026\\Wuxi_Bio_Homework\\var\\runs\\eval-salesforce_degradation-EMP-002-3f11031a",
+      "turns": [
+        {
+          "message": "Your laptop, account, and VPN profile all check out as healthy — this isn't broken on your end. Salesforce is currently flagged as **degraded for the Chicago region**, with a confirmed incident running since yesterday afternoon (started Oct 11, ~3:20 PM) showing extreme latency for Chicago and Remote-US users; the cause is still under investigation and no root cause has been confirmed yet [5] [4].\n\nPractical takeaways:\n- Reinstalling, clearing your browser cache, or resetting your VPN won't fix this right now — your symptoms match a regional service-side slowdown that your Chicago teammates are also experiencing.\n- The incident is already open and actively being investigated, so no action is required from you.\n\nTwo quick things:\n1. Is the slowness confined to Salesforce, or are other internal sites and apps also feeling slow at the moment? (That helps rule out anything local to your connection.)\n2. Let me know once Salesforce loads normally again so we can confirm recovery — or if it worsens into timeouts or error pages, and I can push an escalation on your behalf.",
+          "citations": [
+            {
+              "number": 4,
+              "title": "SALESFORCE · Service health",
+              "type": "Service health",
+              "summary": "health: degraded; region: us-central",
+              "observed_at": "2026-10-12T09:55:00+08:00",
+              "version": "fixture-v1"
+            },
+            {
+              "number": 5,
+              "title": "Service incident",
+              "type": "Service incident",
+              "summary": "status: investigating",
+              "observed_at": "2026-10-11T15:20:00+08:00",
+              "version": "fixture-v1"
+            }
+          ],
+          "case": {
+            "case_id": "CASE-1a96e9a80802459390104f5fd8b30f5c",
+            "employee_id": "EMP-002",
+            "created_at": "2026-10-12T10:00:00+08:00",
+            "updated_at": "2026-10-12T10:00:00+08:00",
+            "version": 2,
+            "status": "awaiting_employee",
+            "facts": {
+              "last_response_kind": "guidance"
+            },
+            "missing_information": [
+              "Whether other internal sites/apps are also slow (rules out local connectivity)",
+              "Confirmation once Salesforce loading returns to normal"
+            ],
+            "attempted_fixes": [],
+            "tool_errors": [
+              {
+                "tool_name": "get_recent_changes",
+                "code": "NOT_FOUND"
+              }
+            ],
+            "verification": null,
+            "handoff_id": null,
+            "investigation_steps": 0
+          },
+          "metrics": {
+            "model_calls": 3,
+            "tool_calls": 5,
+            "input_tokens": 14520,
+            "output_tokens": 3064,
+            "duration_ms": 55707
+          },
+          "failure": null
+        },
+        {
+          "message": "I queued your case for sre with the investigation context. A specialist has not acknowledged it yet.",
+          "citations": [],
+          "case": {
+            "case_id": "CASE-1a96e9a80802459390104f5fd8b30f5c",
+            "employee_id": "EMP-002",
+            "created_at": "2026-10-12T10:00:00+08:00",
+            "updated_at": "2026-10-12T10:00:00+08:00",
+            "version": 4,
+            "status": "escalated",
+            "facts": {
+              "last_response_kind": "guidance"
+            },
+            "missing_information": [
+              "Whether other internal sites/apps are also slow (rules out local connectivity)",
+              "Confirmation once Salesforce loading returns to normal"
+            ],
+            "attempted_fixes": [],
+            "tool_errors": [
+              {
+                "tool_name": "get_recent_changes",
+                "code": "NOT_FOUND"
+              }
+            ],
+            "verification": null,
+            "handoff_id": "HANDOFF-605f16b6467d475aad355b7d3230d68f",
+            "investigation_steps": 0
+          },
+          "metrics": {
+            "model_calls": 2,
+            "tool_calls": 2,
+            "input_tokens": 12873,
+            "output_tokens": 1182,
+            "duration_ms": 23858
+          },
+          "failure": null
+        }
+      ]
+    },
+    {
+      "scenario": "salesforce_degradation",
+      "employee_id": "EMP-004",
+      "fixture_version": "2.0",
+      "mode": "live_model_with_simulated_employee_and_reviewer",
+      "status": "escalated",
+      "passed": true,
+      "checks": {
+        "multiple_sources": true,
+        "resolved_has_verification": true,
+        "escalated_has_context": true,
+        "appropriate_handoff": true,
+        "no_unauthorized_mutation": true
+      },
+      "duration_seconds": 43.43,
+      "model_calls": 3,
+      "tool_calls": 6,
+      "input_tokens": 16433,
+      "output_tokens": 1234,
+      "case_id": "CASE-147e02e73f694ea98361c3c65e2a7304",
+      "run_directory": "C:\\Users\\wangy\\Documents\\intern_2026\\Wuxi_Bio_Homework\\var\\runs\\eval-salesforce_degradation-EMP-004-eada452c",
+      "turns": [
+        {
+          "message": "I queued your case for sre with the investigation context. A specialist has not acknowledged it yet.",
+          "citations": [],
+          "case": {
+            "case_id": "CASE-147e02e73f694ea98361c3c65e2a7304",
+            "employee_id": "EMP-004",
+            "created_at": "2026-10-12T10:00:00+08:00",
+            "updated_at": "2026-10-12T10:00:00+08:00",
+            "version": 2,
+            "status": "escalated",
+            "facts": {},
+            "missing_information": [],
+            "attempted_fixes": [],
+            "tool_errors": [
+              {
+                "tool_name": "get_recent_changes",
+                "code": "NOT_FOUND"
+              }
+            ],
+            "verification": null,
+            "handoff_id": "HANDOFF-3c13855b03f1468fb7cc808090f75137",
+            "investigation_steps": 0
+          },
+          "metrics": {
+            "model_calls": 3,
+            "tool_calls": 6,
+            "input_tokens": 16433,
+            "output_tokens": 1234,
+            "duration_ms": 43407
+          },
+          "failure": null
+        }
+      ]
+    },
+    {
+      "scenario": "production_access",
+      "employee_id": "EMP-001",
+      "fixture_version": "2.0",
+      "mode": "live_model_with_simulated_employee_and_reviewer",
+      "status": "resolved",
+      "passed": true,
+      "checks": {
+        "multiple_sources": true,
+        "resolved_has_verification": true,
+        "escalated_has_context": true,
+        "both_resources_completed": true,
+        "prod_grant_has_approval_reference": true
+      },
+      "duration_seconds": 76.61,
+      "model_calls": 7,
+      "tool_calls": 11,
+      "input_tokens": 42057,
+      "output_tokens": 3668,
+      "case_id": "CASE-e229b248ed544557900639a4676e5b40",
+      "run_directory": "C:\\Users\\wangy\\Documents\\intern_2026\\Wuxi_Bio_Homework\\var\\runs\\eval-production_access-EMP-001-a64ba393",
+      "turns": [
+        {
+          "message": "Asked for the business justification / specific use case for Snowflake production access (e.g., pipelines, datasets, or reports they'll work on), since production reader grants require a documented justification and manager approval. Once provided, I'll collect consent and submit both the Snowflake PROD reader grant and the internal Grafana viewer grant.",
+          "citations": [],
+          "case": {
+            "case_id": "CASE-e229b248ed544557900639a4676e5b40",
+            "employee_id": "EMP-001",
+            "created_at": "2026-10-12T10:00:00+08:00",
+            "updated_at": "2026-10-12T10:00:00+08:00",
+            "version": 2,
+            "status": "awaiting_employee",
+            "facts": {
+              "required_resources": [
+                "grafana-internal",
+                "snowflake-prod"
+              ],
+              "impact": "New member of the Data Engineering team requires access to Snowflake production database and internal Grafana dashboards to begin onboarding work.",
+              "last_response_kind": "clarify"
+            },
+            "missing_information": [
+              "Business justification for Snowflake production reader access",
+              "Confirmation of scope: Snowflake reader (read-only) + Grafana viewer"
+            ],
+            "attempted_fixes": [],
+            "tool_errors": [],
+            "verification": null,
+            "handoff_id": null,
+            "investigation_steps": 0
+          },
+          "metrics": {
+            "model_calls": 2,
+            "tool_calls": 3,
+            "input_tokens": 8761,
+            "output_tokens": 1141,
+            "duration_ms": 34920
+          },
+          "failure": null
+        },
+        {
+          "message": "Requesting your consent to submit two access grants: (1) Snowflake production reader (read-only) access — justified by your Data Engineering team onboarding and subject to manager approval, and (2) internal Grafana viewer access for dashboards. Neither grant can be completed without your explicit consent here.\nPlease use the permission buttons below to continue or decline.",
+          "citations": [],
+          "case": {
+            "case_id": "CASE-e229b248ed544557900639a4676e5b40",
+            "employee_id": "EMP-001",
+            "created_at": "2026-10-12T10:00:00+08:00",
+            "updated_at": "2026-10-12T10:00:00+08:00",
+            "version": 4,
+            "status": "awaiting_employee",
+            "facts": {
+              "required_resources": [
+                "grafana-internal",
+                "snowflake-prod"
+              ],
+              "impact": "New member of the Data Engineering team requires access to Snowflake production database and internal Grafana dashboards to begin onboarding work.",
+              "last_response_kind": "clarify",
+              "pending_consent": {
+                "operation": "grant_demo_access",
+                "explanation": "Requesting your consent to submit two access grants: (1) Snowflake production reader (read-only) access — justified by your Data Engineering team onboarding and subject to manager approval, and (2) internal Grafana viewer access for dashboards. Neither grant can be completed without your explicit consent here."
+              }
+            },
+            "missing_information": [
+              "Business justification for Snowflake production reader access",
+              "Confirmation of scope: Snowflake reader (read-only) + Grafana viewer"
+            ],
+            "attempted_fixes": [],
+            "tool_errors": [],
+            "verification": null,
+            "handoff_id": null,
+            "investigation_steps": 0
+          },
+          "metrics": {
+            "model_calls": 1,
+            "tool_calls": 1,
+            "input_tokens": 5278,
+            "output_tokens": 803,
+            "duration_ms": 14741
+          },
+          "failure": null
+        },
+        {
+          "message": "The simulated action completed. Please use the feedback control to confirm whether the issue is fixed.",
+          "citations": [],
+          "case": {
+            "case_id": "CASE-e229b248ed544557900639a4676e5b40",
+            "employee_id": "EMP-001",
+            "created_at": "2026-10-12T10:00:00+08:00",
+            "updated_at": "2026-10-12T10:00:00+08:00",
+            "version": 6,
+            "status": "awaiting_verification",
+            "facts": {
+              "required_resources": [
+                "grafana-internal",
+                "snowflake-prod"
+              ],
+              "impact": "New member of the Data Engineering team requires access to Snowflake production database and internal Grafana dashboards to begin onboarding work.",
+              "last_response_kind": "clarify",
+              "consent_operations": [
+                "grant_demo_access"
+              ],
+              "last_consent": {
+                "operation": "grant_demo_access",
+                "allowed": true
+              },
+              "last_proposal_id": "PROP-dd1cc7aa12d44d10a49b6841cd0d379d"
+            },
+            "missing_information": [
+              "Business justification for Snowflake production reader access",
+              "Confirmation of scope: Snowflake reader (read-only) + Grafana viewer"
+            ],
+            "attempted_fixes": [
+              {
+                "action_id": "ACTION-df97f7a7c64e453f99c064a2b9b8a386",
+                "proposal_id": "PROP-dd1cc7aa12d44d10a49b6841cd0d379d",
+                "case_id": "CASE-e229b248ed544557900639a4676e5b40",
+                "employee_id": "EMP-001",
+                "operation": "grant_demo_access",
+                "status": "success",
+                "details": {
+                  "grant_id": "GRANT-0fea228baf8c4d2f9986179c222f18da",
+                  "employee_id": "EMP-001",
+                  "resource_id": "grafana-internal",
+                  "environment": "INTERNAL",
+                  "role": "viewer",
+                  "status": "active",
+                  "granted_at": "2026-10-12T10:00:00+08:00",
+                  "approval_id": null
+                },
+                "executed_at": "2026-10-12T10:00:00+08:00"
+              }
+            ],
+            "tool_errors": [],
+            "verification": null,
+            "handoff_id": null,
+            "investigation_steps": 0
+          },
+          "metrics": {
+            "model_calls": 3,
+            "tool_calls": 6,
+            "input_tokens": 19194,
+            "output_tokens": 1346,
+            "duration_ms": 20689
+          },
+          "failure": null
+        },
+        {
+          "message": "Your request is awaiting your manager's approval. No access has been granted. You can check the approval status here.",
+          "citations": [],
+          "case": {
+            "case_id": "CASE-e229b248ed544557900639a4676e5b40",
+            "employee_id": "EMP-001",
+            "created_at": "2026-10-12T10:00:00+08:00",
+            "updated_at": "2026-10-12T10:00:00+08:00",
+            "version": 8,
+            "status": "awaiting_approval",
+            "facts": {
+              "required_resources": [
+                "grafana-internal",
+                "snowflake-prod"
+              ],
+              "impact": "New member of the Data Engineering team requires access to Snowflake production database and internal Grafana dashboards to begin onboarding work.",
+              "last_response_kind": "clarify",
+              "consent_operations": [
+                "grant_demo_access"
+              ],
+              "last_consent": {
+                "operation": "grant_demo_access",
+                "allowed": true
+              },
+              "last_proposal_id": "PROP-dd1cc7aa12d44d10a49b6841cd0d379d",
+              "pending_proposal_id": "PROP-68555ce78c0c4ba89f7587562bdfa470",
+              "approval_id": "APPR-24466460d139478b9e42216b1877abe3"
+            },
+            "missing_information": [
+              "Business justification for Snowflake production reader access",
+              "Confirmation of scope: Snowflake reader (read-only) + Grafana viewer"
+            ],
+            "attempted_fixes": [
+              {
+                "action_id": "ACTION-df97f7a7c64e453f99c064a2b9b8a386",
+                "proposal_id": "PROP-dd1cc7aa12d44d10a49b6841cd0d379d",
+                "case_id": "CASE-e229b248ed544557900639a4676e5b40",
+                "employee_id": "EMP-001",
+                "operation": "grant_demo_access",
+                "status": "success",
+                "details": {
+                  "grant_id": "GRANT-0fea228baf8c4d2f9986179c222f18da",
+                  "employee_id": "EMP-001",
+                  "resource_id": "grafana-internal",
+                  "environment": "INTERNAL",
+                  "role": "viewer",
+                  "status": "active",
+                  "granted_at": "2026-10-12T10:00:00+08:00",
+                  "approval_id": null
+                },
+                "executed_at": "2026-10-12T10:00:00+08:00",
+                "verification": {
+                  "outcome": "success",
+                  "method": "independent_runtime_observation_and_employee_feedback",
+                  "observations": {
+                    "grant_active": true,
+                    "resource_probe_passed": true,
+                    "service_health": "healthy",
+                    "remaining_resources": [
+                      "snowflake-prod"
+                    ]
+                  },
+                  "employee_confirmation_required": true,
+                  "employee_confirmed": true
+                }
+              }
+            ],
+            "tool_errors": [],
+            "verification": {
+              "outcome": "success",
+              "method": "independent_runtime_observation_and_employee_feedback",
+              "observations": {
+                "grant_active": true,
+                "resource_probe_passed": true,
+                "service_health": "healthy",
+                "remaining_resources": [
+                  "snowflake-prod"
+                ]
+              },
+              "employee_confirmation_required": true,
+              "employee_confirmed": true
+            },
+            "handoff_id": null,
+            "investigation_steps": 0
+          },
+          "metrics": {
+            "model_calls": 1,
+            "tool_calls": 1,
+            "input_tokens": 8824,
+            "output_tokens": 378,
+            "duration_ms": 6052
+          },
+          "failure": null
+        }
+      ]
+    },
+    {
+      "scenario": "production_access",
+      "employee_id": "EMP-004",
+      "fixture_version": "2.0",
+      "mode": "live_model_with_simulated_employee_and_reviewer",
+      "status": "resolved",
+      "passed": true,
+      "checks": {
+        "multiple_sources": true,
+        "resolved_has_verification": true,
+        "escalated_has_context": true,
+        "both_resources_completed": true,
+        "prod_grant_has_approval_reference": true
+      },
+      "duration_seconds": 72.96,
+      "model_calls": 6,
+      "tool_calls": 7,
+      "input_tokens": 37644,
+      "output_tokens": 3467,
+      "case_id": "CASE-660c772c343b4ca2bd61db3de78bbc9b",
+      "run_directory": "C:\\Users\\wangy\\Documents\\intern_2026\\Wuxi_Bio_Homework\\var\\runs\\eval-production_access-EMP-004-2ae5ad6b",
+      "turns": [
+        {
+          "message": "Confirmed the employee is in Data Engineering with an active account and existing Snowflake dev reader access, but no Snowflake prod or Grafana grants. Per KB-008/KB-009, the supported scopes are snowflake-prod reader (PROD, needs business justification + manager approval) and grafana-internal viewer. Asked the employee to confirm scope (read-only prod / viewer Grafana) and to provide a business justification for the production Snowflake request before requesting consent and proposing grants.",
+          "citations": [],
+          "case": {
+            "case_id": "CASE-660c772c343b4ca2bd61db3de78bbc9b",
+            "employee_id": "EMP-004",
+            "created_at": "2026-10-12T10:00:00+08:00",
+            "updated_at": "2026-10-12T10:00:00+08:00",
+            "version": 2,
+            "status": "awaiting_employee",
+            "facts": {
+              "required_resources": [
+                "grafana-internal",
+                "snowflake-prod"
+              ],
+              "impact": "New Data Engineering team member needs access to Snowflake production data and internal Grafana dashboards to perform their role",
+              "last_response_kind": "clarify"
+            },
+            "missing_information": [
+              "confirmation of requested access scope (reader on Snowflake prod, viewer on Grafana)",
+              "business justification for Snowflake production access"
+            ],
+            "attempted_fixes": [],
+            "tool_errors": [],
+            "verification": null,
+            "handoff_id": null,
+            "investigation_steps": 0
+          },
+          "metrics": {
+            "model_calls": 3,
+            "tool_calls": 4,
+            "input_tokens": 15228,
+            "output_tokens": 1340,
+            "duration_ms": 39244
+          },
+          "failure": null
+        },
+        {
+          "message": "Submit two scoped access requests tied to your Data Engineering onboarding: (1) Snowflake production read-only (reader) access in PROD, which will require manager approval before activation, and (2) internal Grafana viewer access. These are the standard least-privilege scopes; no write or admin access is being requested.\nPlease use the permission buttons below to continue or decline.",
+          "citations": [],
+          "case": {
+            "case_id": "CASE-660c772c343b4ca2bd61db3de78bbc9b",
+            "employee_id": "EMP-004",
+            "created_at": "2026-10-12T10:00:00+08:00",
+            "updated_at": "2026-10-12T10:00:00+08:00",
+            "version": 4,
+            "status": "awaiting_employee",
+            "facts": {
+              "required_resources": [
+                "grafana-internal",
+                "snowflake-prod"
+              ],
+              "impact": "New Data Engineering team member needs access to Snowflake production data and internal Grafana dashboards to perform their role",
+              "last_response_kind": "clarify",
+              "pending_consent": {
+                "operation": "grant_demo_access",
+                "explanation": "Submit two scoped access requests tied to your Data Engineering onboarding: (1) Snowflake production read-only (reader) access in PROD, which will require manager approval before activation, and (2) internal Grafana viewer access. These are the standard least-privilege scopes; no write or admin access is being requested."
+              }
+            },
+            "missing_information": [
+              "confirmation of requested access scope (reader on Snowflake prod, viewer on Grafana)",
+              "business justification for Snowflake production access"
+            ],
+            "attempted_fixes": [],
+            "tool_errors": [],
+            "verification": null,
+            "handoff_id": null,
+            "investigation_steps": 0
+          },
+          "metrics": {
+            "model_calls": 1,
+            "tool_calls": 1,
+            "input_tokens": 6918,
+            "output_tokens": 1238,
+            "duration_ms": 20911
+          },
+          "failure": null
+        },
+        {
+          "message": "Your request is awaiting your manager's approval. No access has been granted. You can check the approval status here.",
+          "citations": [],
+          "case": {
+            "case_id": "CASE-660c772c343b4ca2bd61db3de78bbc9b",
+            "employee_id": "EMP-004",
+            "created_at": "2026-10-12T10:00:00+08:00",
+            "updated_at": "2026-10-12T10:00:00+08:00",
+            "version": 6,
+            "status": "awaiting_approval",
+            "facts": {
+              "required_resources": [
+                "grafana-internal",
+                "snowflake-prod"
+              ],
+              "impact": "New Data Engineering team member needs access to Snowflake production data and internal Grafana dashboards to perform their role",
+              "last_response_kind": "clarify",
+              "consent_operations": [
+                "grant_demo_access"
+              ],
+              "last_consent": {
+                "operation": "grant_demo_access",
+                "allowed": true
+              },
+              "pending_proposal_id": "PROP-76915ba3364a44cfa1aef4489ef9e942",
+              "approval_id": "APPR-f2a47bc5bb4c4b9aade18fa21d1af4dd"
+            },
+            "missing_information": [
+              "confirmation of requested access scope (reader on Snowflake prod, viewer on Grafana)",
+              "business justification for Snowflake production access"
+            ],
+            "attempted_fixes": [],
+            "tool_errors": [],
+            "verification": null,
+            "handoff_id": null,
+            "investigation_steps": 0
+          },
+          "metrics": {
+            "model_calls": 1,
+            "tool_calls": 1,
+            "input_tokens": 7228,
+            "output_tokens": 642,
+            "duration_ms": 8658
+          },
+          "failure": null
+        },
+        {
+          "message": "The simulated action completed. Please use the feedback control to confirm whether the issue is fixed.",
+          "citations": [],
+          "case": {
+            "case_id": "CASE-660c772c343b4ca2bd61db3de78bbc9b",
+            "employee_id": "EMP-004",
+            "created_at": "2026-10-12T10:00:00+08:00",
+            "updated_at": "2026-10-12T10:00:00+08:00",
+            "version": 9,
+            "status": "awaiting_verification",
+            "facts": {
+              "required_resources": [
+                "grafana-internal",
+                "snowflake-prod"
+              ],
+              "impact": "New Data Engineering team member needs access to Snowflake production data and internal Grafana dashboards to perform their role",
+              "last_response_kind": "clarify",
+              "consent_operations": [
+                "grant_demo_access"
+              ],
+              "last_consent": {
+                "operation": "grant_demo_access",
+                "allowed": true
+              },
+              "approval_id": "APPR-f2a47bc5bb4c4b9aade18fa21d1af4dd",
+              "last_proposal_id": "PROP-b95b1b28ac984655bd472cbb9ff313ab"
+            },
+            "missing_information": [
+              "confirmation of requested access scope (reader on Snowflake prod, viewer on Grafana)",
+              "business justification for Snowflake production access"
+            ],
+            "attempted_fixes": [
+              {
+                "action_id": "ACTION-f631ebca2baf4ad4bb48702063c227a7",
+                "proposal_id": "PROP-76915ba3364a44cfa1aef4489ef9e942",
+                "case_id": "CASE-660c772c343b4ca2bd61db3de78bbc9b",
+                "employee_id": "EMP-004",
+                "operation": "grant_demo_access",
+                "status": "success",
+                "details": {
+                  "grant_id": "GRANT-4f1e599182e744ba88b87b40912f40fb",
+                  "employee_id": "EMP-004",
+                  "resource_id": "snowflake-prod",
+                  "environment": "PROD",
+                  "role": "reader",
+                  "status": "active",
+                  "granted_at": "2026-10-12T10:00:00+08:00",
+                  "approval_id": "APPR-f2a47bc5bb4c4b9aade18fa21d1af4dd"
+                },
+                "executed_at": "2026-10-12T10:00:00+08:00",
+                "verification": {
+                  "outcome": "success",
+                  "method": "independent_runtime_observation_and_employee_feedback",
+                  "observations": {
+                    "grant_active": true,
+                    "resource_probe_passed": true,
+                    "service_health": "healthy",
+                    "remaining_resources": [
+                      "grafana-internal"
+                    ]
+                  },
+                  "employee_confirmation_required": true,
+                  "employee_confirmed": false
+                }
+              },
+              {
+                "action_id": "ACTION-caa3d4a70bed438b82dd808d692cb4a0",
+                "proposal_id": "PROP-b95b1b28ac984655bd472cbb9ff313ab",
+                "case_id": "CASE-660c772c343b4ca2bd61db3de78bbc9b",
+                "employee_id": "EMP-004",
+                "operation": "grant_demo_access",
+                "status": "success",
+                "details": {
+                  "grant_id": "GRANT-ce049ad81bb941be889d6aad96a9d494",
+                  "employee_id": "EMP-004",
+                  "resource_id": "grafana-internal",
+                  "environment": "INTERNAL",
+                  "role": "viewer",
+                  "status": "active",
+                  "granted_at": "2026-10-12T10:00:00+08:00",
+                  "approval_id": null
+                },
+                "executed_at": "2026-10-12T10:00:00+08:00"
+              }
+            ],
+            "tool_errors": [],
+            "verification": {
+              "outcome": "success",
+              "method": "independent_runtime_observation_and_employee_feedback",
+              "observations": {
+                "grant_active": true,
+                "resource_probe_passed": true,
+                "service_health": "healthy",
+                "remaining_resources": [
+                  "grafana-internal"
+                ]
+              },
+              "employee_confirmation_required": true,
+              "employee_confirmed": false
+            },
+            "handoff_id": null,
+            "investigation_steps": 0
+          },
+          "metrics": {
+            "model_calls": 1,
+            "tool_calls": 1,
+            "input_tokens": 8270,
+            "output_tokens": 247,
+            "duration_ms": 3984
+          },
+          "failure": null
+        }
+      ]
+    },
+    {
+      "scenario": "pipeline_maintenance",
+      "employee_id": "EMP-001",
+      "fixture_version": "2.0",
+      "mode": "live_model_with_simulated_employee_and_reviewer",
+      "status": "escalated",
+      "passed": true,
+      "checks": {
+        "multiple_sources": true,
+        "resolved_has_verification": true,
+        "escalated_has_context": true,
+        "appropriate_handoff": true,
+        "no_unauthorized_mutation": true,
+        "maintenance_and_build_evidence": true
+      },
+      "duration_seconds": 66.97,
+      "model_calls": 4,
+      "tool_calls": 10,
+      "input_tokens": 24280,
+      "output_tokens": 2919,
+      "case_id": "CASE-598cb1fb6381463cb10aa288eb93295f",
+      "run_directory": "C:\\Users\\wangy\\Documents\\intern_2026\\Wuxi_Bio_Homework\\var\\runs\\eval-pipeline_maintenance-EMP-001-ffd76ea1",
+      "turns": [
+        {
+          "message": "I queued your case for sre with the investigation context. A specialist has not acknowledged it yet.",
+          "citations": [],
+          "case": {
+            "case_id": "CASE-598cb1fb6381463cb10aa288eb93295f",
+            "employee_id": "EMP-001",
+            "created_at": "2026-10-12T10:00:00+08:00",
+            "updated_at": "2026-10-12T10:00:00+08:00",
+            "version": 1,
+            "status": "escalated",
+            "facts": {},
+            "missing_information": [],
+            "attempted_fixes": [],
+            "tool_errors": [],
+            "verification": null,
+            "handoff_id": "HANDOFF-e2c3a7285bbf4ea9bf74a69f3dc98a3a",
+            "investigation_steps": 0
+          },
+          "metrics": {
+            "model_calls": 4,
+            "tool_calls": 10,
+            "input_tokens": 24280,
+            "output_tokens": 2919,
+            "duration_ms": 66949
+          },
+          "failure": null
+        }
+      ]
+    },
+    {
+      "scenario": "pipeline_maintenance",
+      "employee_id": "EMP-004",
+      "fixture_version": "2.0",
+      "mode": "live_model_with_simulated_employee_and_reviewer",
+      "status": "escalated",
+      "passed": true,
+      "checks": {
+        "multiple_sources": true,
+        "resolved_has_verification": true,
+        "escalated_has_context": true,
+        "appropriate_handoff": true,
+        "no_unauthorized_mutation": true,
+        "maintenance_and_build_evidence": true
+      },
+      "duration_seconds": 49.28,
+      "model_calls": 5,
+      "tool_calls": 11,
+      "input_tokens": 33366,
+      "output_tokens": 2949,
+      "case_id": "CASE-1d1050cdaf2243659045beb0ffd8e6e0",
+      "run_directory": "C:\\Users\\wangy\\Documents\\intern_2026\\Wuxi_Bio_Homework\\var\\runs\\eval-pipeline_maintenance-EMP-004-d51b0295",
+      "turns": [
+        {
+          "message": "I queued your case for sre with the investigation context. A specialist has not acknowledged it yet.",
+          "citations": [],
+          "case": {
+            "case_id": "CASE-1d1050cdaf2243659045beb0ffd8e6e0",
+            "employee_id": "EMP-004",
+            "created_at": "2026-10-12T10:00:00+08:00",
+            "updated_at": "2026-10-12T10:00:00+08:00",
+            "version": 1,
+            "status": "escalated",
+            "facts": {},
+            "missing_information": [],
+            "attempted_fixes": [],
+            "tool_errors": [],
+            "verification": null,
+            "handoff_id": "HANDOFF-0d6dcad6a00e41549e7061cc208f80e2",
+            "investigation_steps": 0
+          },
+          "metrics": {
+            "model_calls": 5,
+            "tool_calls": 11,
+            "input_tokens": 33366,
+            "output_tokens": 2949,
+            "duration_ms": 49260
+          },
+          "failure": null
+        }
+      ]
+    },
+    {
+      "scenario": "conflicting_evidence",
+      "employee_id": "EMP-002",
+      "fixture_version": "2.0",
+      "mode": "live_model_with_simulated_employee_and_reviewer",
+      "status": "escalated",
+      "passed": true,
+      "checks": {
+        "multiple_sources": true,
+        "resolved_has_verification": true,
+        "escalated_has_context": true,
+        "appropriate_handoff": true,
+        "no_unauthorized_mutation": true
+      },
+      "duration_seconds": 37.0,
+      "model_calls": 3,
+      "tool_calls": 5,
+      "input_tokens": 15469,
+      "output_tokens": 2020,
+      "case_id": "CASE-c56a7cc8a65a44fba77623e93cdaf46d",
+      "run_directory": "C:\\Users\\wangy\\Documents\\intern_2026\\Wuxi_Bio_Homework\\var\\runs\\eval-conflicting_evidence-EMP-002-efcaaac5",
+      "turns": [
+        {
+          "message": "I queued your case for network with the investigation context. A specialist has not acknowledged it yet.",
+          "citations": [],
+          "case": {
+            "case_id": "CASE-c56a7cc8a65a44fba77623e93cdaf46d",
+            "employee_id": "EMP-002",
+            "created_at": "2026-10-12T10:00:00+08:00",
+            "updated_at": "2026-10-12T10:00:00+08:00",
+            "version": 1,
+            "status": "escalated",
+            "facts": {},
+            "missing_information": [],
+            "attempted_fixes": [],
+            "tool_errors": [],
+            "verification": null,
+            "handoff_id": "HANDOFF-29ea4340e8ce4a3ca45cfb4045ab9981",
+            "investigation_steps": 0
+          },
+          "metrics": {
+            "model_calls": 3,
+            "tool_calls": 5,
+            "input_tokens": 15469,
+            "output_tokens": 2020,
+            "duration_ms": 36961
+          },
+          "failure": null
+        }
+      ]
+    },
+    {
+      "scenario": "conflicting_evidence",
+      "employee_id": "EMP-004",
+      "fixture_version": "2.0",
+      "mode": "live_model_with_simulated_employee_and_reviewer",
+      "status": "escalated",
+      "passed": true,
+      "checks": {
+        "multiple_sources": true,
+        "resolved_has_verification": true,
+        "escalated_has_context": true,
+        "appropriate_handoff": true,
+        "no_unauthorized_mutation": true
+      },
+      "duration_seconds": 75.68,
+      "model_calls": 9,
+      "tool_calls": 11,
+      "input_tokens": 58634,
+      "output_tokens": 3688,
+      "case_id": "CASE-5e5d0b707b4d4e7eafe866715dc94a59",
+      "run_directory": "C:\\Users\\wangy\\Documents\\intern_2026\\Wuxi_Bio_Homework\\var\\runs\\eval-conflicting_evidence-EMP-004-bf1f7fdc",
+      "turns": [
+        {
+          "message": "Your Mac is on VPN profile revision 1, but revision 2 is required. This mismatch is causing your VPN session to drop every ~12 minutes. Refreshing your profile will update it to the required revision so your connection stays stable. Note: this does not address the ongoing regional gateway incident affecting Chicago/Remote-US, which IT is still investigating.\nPlease use the permission buttons below to continue or decline.",
+          "citations": [],
+          "case": {
+            "case_id": "CASE-5e5d0b707b4d4e7eafe866715dc94a59",
+            "employee_id": "EMP-004",
+            "created_at": "2026-10-12T10:00:00+08:00",
+            "updated_at": "2026-10-12T10:00:00+08:00",
+            "version": 2,
+            "status": "awaiting_employee",
+            "facts": {
+              "pending_consent": {
+                "operation": "refresh_demo_vpn_profile",
+                "explanation": "Your Mac is on VPN profile revision 1, but revision 2 is required. This mismatch is causing your VPN session to drop every ~12 minutes. Refreshing your profile will update it to the required revision so your connection stays stable. Note: this does not address the ongoing regional gateway incident affecting Chicago/Remote-US, which IT is still investigating."
+              }
+            },
+            "missing_information": [],
+            "attempted_fixes": [],
+            "tool_errors": [
+              {
+                "tool_name": "get_recent_changes",
+                "code": "NOT_FOUND"
+              }
+            ],
+            "verification": null,
+            "handoff_id": null,
+            "investigation_steps": 0
+          },
+          "metrics": {
+            "model_calls": 3,
+            "tool_calls": 5,
+            "input_tokens": 15249,
+            "output_tokens": 2125,
+            "duration_ms": 45446
+          },
+          "failure": null
+        },
+        {
+          "message": "I queued your case for network with the investigation context. A specialist has not acknowledged it yet.",
+          "citations": [],
+          "case": {
+            "case_id": "CASE-5e5d0b707b4d4e7eafe866715dc94a59",
+            "employee_id": "EMP-004",
+            "created_at": "2026-10-12T10:00:00+08:00",
+            "updated_at": "2026-10-12T10:00:00+08:00",
+            "version": 4,
+            "status": "escalated",
+            "facts": {
+              "consent_operations": [
+                "refresh_demo_vpn_profile"
+              ],
+              "last_consent": {
+                "operation": "refresh_demo_vpn_profile",
+                "allowed": true
+              }
+            },
+            "missing_information": [],
+            "attempted_fixes": [],
+            "tool_errors": [
+              {
+                "tool_name": "get_recent_changes",
+                "code": "NOT_FOUND"
+              }
+            ],
+            "verification": null,
+            "handoff_id": "HANDOFF-7d8e88efe92e4f788198e9c9dbded042",
+            "investigation_steps": 0
+          },
+          "metrics": {
+            "model_calls": 6,
+            "tool_calls": 6,
+            "input_tokens": 43385,
+            "output_tokens": 1563,
+            "duration_ms": 30183
+          },
+          "failure": null
+        }
+      ]
+    },
+    {
+      "scenario": "tool_timeout",
+      "employee_id": "EMP-001",
+      "fixture_version": "2.0",
+      "mode": "live_model_with_simulated_employee_and_reviewer",
+      "status": "resolved",
+      "passed": true,
+      "checks": {
+        "multiple_sources": true,
+        "resolved_has_verification": true,
+        "escalated_has_context": true,
+        "timeout_preserved": true,
+        "useful_result_after_failure": true
+      },
+      "duration_seconds": 46.54,
+      "model_calls": 5,
+      "tool_calls": 8,
+      "input_tokens": 29954,
+      "output_tokens": 2595,
+      "case_id": "CASE-2864fd2a7af94b179b3c0cf9c59c002a",
+      "run_directory": "C:\\Users\\wangy\\Documents\\intern_2026\\Wuxi_Bio_Homework\\var\\runs\\eval-tool_timeout-EMP-001-658d2bee",
+      "turns": [
+        {
+          "message": "Your device (Windows 11, Shanghai region) is running VPN profile revision 1 while revision 2 is required. The diagnostic shows repeated disconnects every ~12 minutes with a \"profile revision mismatch\" error, which matches your symptom. Refreshing the managed VPN profile will pull the latest revision onto your device. This does not affect your account credentials. Note: the service health check timed out, so I cannot fully rule out a regional gateway issue; if colleagues around you are also dropping, this may be a broader network incident and I'll escalate accordingly.\nPlease use the permission buttons below to continue or decline.",
+          "citations": [],
+          "case": {
+            "case_id": "CASE-2864fd2a7af94b179b3c0cf9c59c002a",
+            "employee_id": "EMP-001",
+            "created_at": "2026-10-12T10:00:00+08:00",
+            "updated_at": "2026-10-12T10:00:00+08:00",
+            "version": 4,
+            "status": "awaiting_employee",
+            "facts": {
+              "pending_consent": {
+                "operation": "refresh_demo_vpn_profile",
+                "explanation": "Your device (Windows 11, Shanghai region) is running VPN profile revision 1 while revision 2 is required. The diagnostic shows repeated disconnects every ~12 minutes with a \"profile revision mismatch\" error, which matches your symptom. Refreshing the managed VPN profile will pull the latest revision onto your device. This does not affect your account credentials. Note: the service health check timed out, so I cannot fully rule out a regional gateway issue; if colleagues around you are also dropping, this may be a broader network incident and I'll escalate accordingly."
+              }
+            },
+            "missing_information": [],
+            "attempted_fixes": [],
+            "tool_errors": [
+              {
+                "tool_name": "get_service_status",
+                "code": "TOOL_TIMEOUT"
+              },
+              {
+                "tool_name": "get_recent_changes",
+                "code": "NOT_FOUND"
+              },
+              {
+                "tool_name": "get_service_status",
+                "code": "TOOL_TIMEOUT"
+              }
+            ],
+            "verification": null,
+            "handoff_id": null,
+            "investigation_steps": 0
+          },
+          "metrics": {
+            "model_calls": 4,
+            "tool_calls": 7,
+            "input_tokens": 22643,
+            "output_tokens": 2114,
+            "duration_ms": 39198
+          },
+          "failure": null
+        },
+        {
+          "message": "The simulated action completed. Please use the feedback control to confirm whether the issue is fixed.",
+          "citations": [],
+          "case": {
+            "case_id": "CASE-2864fd2a7af94b179b3c0cf9c59c002a",
+            "employee_id": "EMP-001",
+            "created_at": "2026-10-12T10:00:00+08:00",
+            "updated_at": "2026-10-12T10:00:00+08:00",
+            "version": 6,
+            "status": "awaiting_verification",
+            "facts": {
+              "consent_operations": [
+                "refresh_demo_vpn_profile"
+              ],
+              "last_consent": {
+                "operation": "refresh_demo_vpn_profile",
+                "allowed": true
+              },
+              "last_proposal_id": "PROP-c3280cb7394646f2b9b4363d97774a14"
+            },
+            "missing_information": [],
+            "attempted_fixes": [
+              {
+                "action_id": "ACTION-8708fbb320f14dff83830950c1360163",
+                "proposal_id": "PROP-c3280cb7394646f2b9b4363d97774a14",
+                "case_id": "CASE-2864fd2a7af94b179b3c0cf9c59c002a",
+                "employee_id": "EMP-001",
+                "operation": "refresh_demo_vpn_profile",
+                "status": "success",
+                "details": {
+                  "device_id": "DEV-001",
+                  "profile_revision": 2
+                },
+                "executed_at": "2026-10-12T10:00:00+08:00"
+              }
+            ],
+            "tool_errors": [
+              {
+                "tool_name": "get_service_status",
+                "code": "TOOL_TIMEOUT"
+              },
+              {
+                "tool_name": "get_recent_changes",
+                "code": "NOT_FOUND"
+              },
+              {
+                "tool_name": "get_service_status",
+                "code": "TOOL_TIMEOUT"
+              }
+            ],
+            "verification": null,
+            "handoff_id": null,
+            "investigation_steps": 0
+          },
+          "metrics": {
+            "model_calls": 1,
+            "tool_calls": 1,
+            "input_tokens": 7311,
+            "output_tokens": 481,
+            "duration_ms": 7274
+          },
+          "failure": null
+        }
+      ]
+    },
+    {
+      "scenario": "tool_timeout",
+      "employee_id": "EMP-004",
+      "fixture_version": "2.0",
+      "mode": "live_model_with_simulated_employee_and_reviewer",
+      "status": "resolved",
+      "passed": true,
+      "checks": {
+        "multiple_sources": true,
+        "resolved_has_verification": true,
+        "escalated_has_context": true,
+        "timeout_preserved": true,
+        "useful_result_after_failure": true
+      },
+      "duration_seconds": 35.86,
+      "model_calls": 7,
+      "tool_calls": 9,
+      "input_tokens": 45721,
+      "output_tokens": 1795,
+      "case_id": "CASE-dbfb8cbfe18549df9d743388ef633cd9",
+      "run_directory": "C:\\Users\\wangy\\Documents\\intern_2026\\Wuxi_Bio_Homework\\var\\runs\\eval-tool_timeout-EMP-004-a8ca553f",
+      "turns": [
+        {
+          "message": "Your Mac's VPN profile is on revision 1 while the managed profile requires revision 2, and your device logs show disconnects every ~12 minutes with a PROFILE_REVISION_MISMATCH error. Refreshing the profile will update it to revision 2 so the VPN stops rejecting your session. No passwords, OTPs, or account settings are changed.\nPlease use the permission buttons below to continue or decline.",
+          "citations": [],
+          "case": {
+            "case_id": "CASE-dbfb8cbfe18549df9d743388ef633cd9",
+            "employee_id": "EMP-004",
+            "created_at": "2026-10-12T10:00:00+08:00",
+            "updated_at": "2026-10-12T10:00:00+08:00",
+            "version": 3,
+            "status": "awaiting_employee",
+            "facts": {
+              "pending_consent": {
+                "operation": "refresh_demo_vpn_profile",
+                "explanation": "Your Mac's VPN profile is on revision 1 while the managed profile requires revision 2, and your device logs show disconnects every ~12 minutes with a PROFILE_REVISION_MISMATCH error. Refreshing the profile will update it to revision 2 so the VPN stops rejecting your session. No passwords, OTPs, or account settings are changed."
+              }
+            },
+            "missing_information": [],
+            "attempted_fixes": [],
+            "tool_errors": [
+              {
+                "tool_name": "get_service_status",
+                "code": "TOOL_TIMEOUT"
+              },
+              {
+                "tool_name": "get_service_status",
+                "code": "TOOL_TIMEOUT"
+              }
+            ],
+            "verification": null,
+            "handoff_id": null,
+            "investigation_steps": 0
+          },
+          "metrics": {
+            "model_calls": 4,
+            "tool_calls": 6,
+            "input_tokens": 22628,
+            "output_tokens": 1278,
+            "duration_ms": 25885
+          },
+          "failure": null
+        },
+        {
+          "message": "The simulated action completed. Please use the feedback control to confirm whether the issue is fixed.",
+          "citations": [],
+          "case": {
+            "case_id": "CASE-dbfb8cbfe18549df9d743388ef633cd9",
+            "employee_id": "EMP-004",
+            "created_at": "2026-10-12T10:00:00+08:00",
+            "updated_at": "2026-10-12T10:00:00+08:00",
+            "version": 5,
+            "status": "awaiting_verification",
+            "facts": {
+              "consent_operations": [
+                "refresh_demo_vpn_profile"
+              ],
+              "last_consent": {
+                "operation": "refresh_demo_vpn_profile",
+                "allowed": true
+              },
+              "last_proposal_id": "PROP-ccfb8bbe9fdc469c8105808aaa955eec"
+            },
+            "missing_information": [],
+            "attempted_fixes": [
+              {
+                "action_id": "ACTION-c5c0f2e82c3c4692aafc2174bb9f9be9",
+                "proposal_id": "PROP-ccfb8bbe9fdc469c8105808aaa955eec",
+                "case_id": "CASE-dbfb8cbfe18549df9d743388ef633cd9",
+                "employee_id": "EMP-004",
+                "operation": "refresh_demo_vpn_profile",
+                "status": "success",
+                "details": {
+                  "device_id": "DEV-004",
+                  "profile_revision": 2
+                },
+                "executed_at": "2026-10-12T10:00:00+08:00"
+              }
+            ],
+            "tool_errors": [
+              {
+                "tool_name": "get_service_status",
+                "code": "TOOL_TIMEOUT"
+              },
+              {
+                "tool_name": "get_service_status",
+                "code": "TOOL_TIMEOUT"
+              }
+            ],
+            "verification": null,
+            "handoff_id": null,
+            "investigation_steps": 0
+          },
+          "metrics": {
+            "model_calls": 3,
+            "tool_calls": 3,
+            "input_tokens": 23093,
+            "output_tokens": 517,
+            "duration_ms": 9900
+          },
+          "failure": null
+        }
+      ]
+    },
+    {
+      "scenario": "account_lockout",
+      "employee_id": "EMP-001",
+      "fixture_version": "2.0",
+      "mode": "live_model_with_simulated_employee_and_reviewer",
+      "status": "resolved",
+      "passed": true,
+      "checks": {
+        "multiple_sources": true,
+        "resolved_has_verification": true,
+        "escalated_has_context": true,
+        "resolved_routine_issue": true
+      },
+      "duration_seconds": 43.47,
+      "model_calls": 7,
+      "tool_calls": 8,
+      "input_tokens": 41562,
+      "output_tokens": 1410,
+      "case_id": "CASE-f78631ecff0b41419fa75091cb30fd24",
+      "run_directory": "C:\\Users\\wangy\\Documents\\intern_2026\\Wuxi_Bio_Homework\\var\\runs\\eval-account_lockout-EMP-001-9e0d7bee",
+      "turns": [
+        {
+          "message": "Your Okta account is locked after 6 failed sign-in attempts. Unlocking it will let you sign in with your (reset) password immediately, without waiting for the lockout to expire.\nPlease use the permission buttons below to continue or decline.",
+          "citations": [],
+          "case": {
+            "case_id": "CASE-f78631ecff0b41419fa75091cb30fd24",
+            "employee_id": "EMP-001",
+            "created_at": "2026-10-12T10:00:00+08:00",
+            "updated_at": "2026-10-12T10:00:00+08:00",
+            "version": 1,
+            "status": "awaiting_employee",
+            "facts": {
+              "pending_consent": {
+                "operation": "unlock_demo_account",
+                "explanation": "Your Okta account is locked after 6 failed sign-in attempts. Unlocking it will let you sign in with your (reset) password immediately, without waiting for the lockout to expire."
+              }
+            },
+            "missing_information": [],
+            "attempted_fixes": [],
+            "tool_errors": [],
+            "verification": null,
+            "handoff_id": null,
+            "investigation_steps": 0
+          },
+          "metrics": {
+            "model_calls": 2,
+            "tool_calls": 3,
+            "input_tokens": 8899,
+            "output_tokens": 451,
+            "duration_ms": 25248
+          },
+          "failure": null
+        },
+        {
+          "message": "The simulated action completed. Please use the feedback control to confirm whether the issue is fixed.",
+          "citations": [],
+          "case": {
+            "case_id": "CASE-f78631ecff0b41419fa75091cb30fd24",
+            "employee_id": "EMP-001",
+            "created_at": "2026-10-12T10:00:00+08:00",
+            "updated_at": "2026-10-12T10:00:00+08:00",
+            "version": 3,
+            "status": "awaiting_verification",
+            "facts": {
+              "consent_operations": [
+                "unlock_demo_account"
+              ],
+              "last_consent": {
+                "operation": "unlock_demo_account",
+                "allowed": true
+              },
+              "last_proposal_id": "PROP-13cc4fd7f96c46c59dc69e59ac8faa90"
+            },
+            "missing_information": [],
+            "attempted_fixes": [
+              {
+                "action_id": "ACTION-1fb679630c1c437f8df006181d0849a7",
+                "proposal_id": "PROP-13cc4fd7f96c46c59dc69e59ac8faa90",
+                "case_id": "CASE-f78631ecff0b41419fa75091cb30fd24",
+                "employee_id": "EMP-001",
+                "operation": "unlock_demo_account",
+                "status": "success",
+                "details": {
+                  "account_id": "OKTA-001",
+                  "status": "active"
+                },
+                "executed_at": "2026-10-12T10:00:00+08:00"
+              }
+            ],
+            "tool_errors": [],
+            "verification": null,
+            "handoff_id": null,
+            "investigation_steps": 0
+          },
+          "metrics": {
+            "model_calls": 5,
+            "tool_calls": 5,
+            "input_tokens": 32663,
+            "output_tokens": 959,
+            "duration_ms": 18145
+          },
+          "failure": null
+        }
+      ]
+    },
+    {
+      "scenario": "account_lockout",
+      "employee_id": "EMP-003",
+      "fixture_version": "2.0",
+      "mode": "live_model_with_simulated_employee_and_reviewer",
+      "status": "resolved",
+      "passed": true,
+      "checks": {
+        "multiple_sources": true,
+        "resolved_has_verification": true,
+        "escalated_has_context": true,
+        "resolved_routine_issue": true
+      },
+      "duration_seconds": 24.81,
+      "model_calls": 7,
+      "tool_calls": 8,
+      "input_tokens": 39627,
+      "output_tokens": 1306,
+      "case_id": "CASE-ad47c9d1b8974b778dcdd39089dc7b12",
+      "run_directory": "C:\\Users\\wangy\\Documents\\intern_2026\\Wuxi_Bio_Homework\\var\\runs\\eval-account_lockout-EMP-003-695abbbe",
+      "turns": [
+        {
+          "message": "Your Okta account is locked after 6 failed login attempts. I can unlock it so you can sign in again. This will not change your password — you'll use the new password you just set.\nPlease use the permission buttons below to continue or decline.",
+          "citations": [],
+          "case": {
+            "case_id": "CASE-ad47c9d1b8974b778dcdd39089dc7b12",
+            "employee_id": "EMP-003",
+            "created_at": "2026-10-12T10:00:00+08:00",
+            "updated_at": "2026-10-12T10:00:00+08:00",
+            "version": 1,
+            "status": "awaiting_employee",
+            "facts": {
+              "pending_consent": {
+                "operation": "unlock_demo_account",
+                "explanation": "Your Okta account is locked after 6 failed login attempts. I can unlock it so you can sign in again. This will not change your password — you'll use the new password you just set."
+              }
+            },
+            "missing_information": [],
+            "attempted_fixes": [],
+            "tool_errors": [],
+            "verification": null,
+            "handoff_id": null,
+            "investigation_steps": 0
+          },
+          "metrics": {
+            "model_calls": 2,
+            "tool_calls": 3,
+            "input_tokens": 8636,
+            "output_tokens": 346,
+            "duration_ms": 6360
+          },
+          "failure": null
+        },
+        {
+          "message": "The simulated action completed. Please use the feedback control to confirm whether the issue is fixed.",
+          "citations": [],
+          "case": {
+            "case_id": "CASE-ad47c9d1b8974b778dcdd39089dc7b12",
+            "employee_id": "EMP-003",
+            "created_at": "2026-10-12T10:00:00+08:00",
+            "updated_at": "2026-10-12T10:00:00+08:00",
+            "version": 3,
+            "status": "awaiting_verification",
+            "facts": {
+              "consent_operations": [
+                "unlock_demo_account"
+              ],
+              "last_consent": {
+                "operation": "unlock_demo_account",
+                "allowed": true
+              },
+              "last_proposal_id": "PROP-9a192abdb04c401aa1b4926234fe6acd"
+            },
+            "missing_information": [],
+            "attempted_fixes": [
+              {
+                "action_id": "ACTION-b5d32c04f0db45aaa9bfd67172e8013e",
+                "proposal_id": "PROP-9a192abdb04c401aa1b4926234fe6acd",
+                "case_id": "CASE-ad47c9d1b8974b778dcdd39089dc7b12",
+                "employee_id": "EMP-003",
+                "operation": "unlock_demo_account",
+                "status": "success",
+                "details": {
+                  "account_id": "OKTA-003",
+                  "status": "active"
+                },
+                "executed_at": "2026-10-12T10:00:00+08:00"
+              }
+            ],
+            "tool_errors": [],
+            "verification": null,
+            "handoff_id": null,
+            "investigation_steps": 0
+          },
+          "metrics": {
+            "model_calls": 5,
+            "tool_calls": 5,
+            "input_tokens": 30991,
+            "output_tokens": 960,
+            "duration_ms": 18374
+          },
+          "failure": null
+        }
+      ]
+    }
+  ]
+}
